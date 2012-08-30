@@ -615,7 +615,7 @@ public class GraphicalInterface extends JFrame {
 				
 				setOptimizePath(optimizePath);
 
-
+                //code below is commented out since line 645 throws an error
                 /*
 				// DEGEN: Begin optimization
 
