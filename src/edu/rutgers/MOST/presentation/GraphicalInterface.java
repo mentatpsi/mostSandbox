@@ -514,11 +514,6 @@ public class GraphicalInterface extends JFrame {
 		loadSBMLItem.setMnemonic(KeyEvent.VK_L);
 		loadSBMLItem.addActionListener(new LoadSBMLAction());
 
-		JMenuItem loadSQLItem = new JMenuItem("Load SQLite");
-		modelMenu.add(loadSQLItem);
-		loadSQLItem.setMnemonic(KeyEvent.VK_Q);
-		loadSQLItem.addActionListener(new LoadSQLiteItemAction());
-
 		JMenuItem loadCSVMetabolitesItem = new JMenuItem("Load CSV Metabolites");
 		modelMenu.add(loadCSVMetabolitesItem);
 		loadCSVMetabolitesItem.setToolTipText("Metabolites File must be loaded before Reactions File");
@@ -531,6 +526,11 @@ public class GraphicalInterface extends JFrame {
 		loadCSVReactionsItem.setMnemonic(KeyEvent.VK_R);
 		loadCSVReactionsItem.addActionListener(new LoadCSVReactionsTableAction());
 
+		JMenuItem loadSQLItem = new JMenuItem("Load SQLite");
+		modelMenu.add(loadSQLItem);
+		loadSQLItem.setMnemonic(KeyEvent.VK_Q);
+		loadSQLItem.addActionListener(new LoadSQLiteItemAction());
+		
 		modelMenu.addSeparator();
 
 		JMenuItem saveCSVMetabolitesItem = new JMenuItem("Save As CSV Metabolites");
@@ -1866,10 +1866,10 @@ public class GraphicalInterface extends JFrame {
 			
 			TableColumn column = reactionsTable.getColumnModel().getColumn(i);
 			if (i==GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN) {
-				column.setMaxWidth(0);
-				column.setMinWidth(0); 
-				column.setWidth(0); 
-				column.setPreferredWidth(0);
+				//column.setMaxWidth(0);
+				//column.setMinWidth(0); 
+				//column.setWidth(0); 
+				//column.setPreferredWidth(0);
 				ChangeName(reactionsTable, GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN, 
 						GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES[GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN]); 
 				column.setCellRenderer(reacGreyRenderer);
@@ -2145,10 +2145,10 @@ public class GraphicalInterface extends JFrame {
 
 			TableColumn column = metabolitesTable.getColumnModel().getColumn(w);
 			if (w==GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN) {	
-				column.setMaxWidth(0);
-				column.setMinWidth(0); 
-				column.setWidth(0); 
-				column.setPreferredWidth(0);
+				//column.setMaxWidth(0);
+				//column.setMinWidth(0); 
+				//column.setWidth(0); 
+				//column.setPreferredWidth(0);
 				ChangeName(metabolitesTable, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN, 
 						GraphicalInterfaceConstants.METABOLITES_COLUMN_NAMES[GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN]);     
 				column.setCellRenderer(metabGreyRenderer);
@@ -3251,7 +3251,7 @@ public class GraphicalInterface extends JFrame {
 	public void setUpMetabolitesTable(Connection con) {
 
 		try {
-			MetabolitesDatabaseTableModel metabModel = new MetabolitesDatabaseTableModel(con, new String("select * from metabolites"));
+			MetabolitesDatabaseTableModel metabModel = new MetabolitesDatabaseTableModel(con, new String("select * from metabolites;"));
 			metabolitesTable.setModel(metabModel);
 			setMetabolitesTableLayout();
 			
