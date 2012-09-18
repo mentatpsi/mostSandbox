@@ -351,8 +351,9 @@ public class GraphicalInterface extends JFrame {
 		LocalConfig.getInstance().setProgress(0);
 		progressBar.pack();
 		progressBar.setIconImages(icons);
-		progressBar.setSize(200, 75);
+		progressBar.setSize(200, 70);
 		progressBar.setTitle("Loading...");
+		progressBar.progress.setIndeterminate(true);
 		progressBar.setVisible(false);
 
 		setDatabaseName(ConfigConstants.DEFAULT_DATABASE_NAME);
@@ -3583,6 +3584,9 @@ public class GraphicalInterface extends JFrame {
 
 	class TimeListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
+			if (LocalConfig.getInstance().getProgress() > 0) {
+				progressBar.progress.setIndeterminate(false);
+			}			
 			progressBar.progress.setValue(LocalConfig.getInstance().getProgress());
 			progressBar.progress.repaint();
 			if (LocalConfig.getInstance().getProgress() == 100) {
