@@ -278,10 +278,8 @@ public class SBMLModelReader {
 							if (reactants.get(r).isSetSpecies()) {
 								Integer id = (Integer) metaboliteIdNameMap.get(reactants.get(r).getSpecies());
 								String rrInsert = "INSERT INTO reaction_reactants(reaction_id, stoic, metabolite_id) values (" + (j + 1) + ", " + reactants.get(r).getStoichiometry() + ", " + id + ");";
-								//String insert = "INSERT INTO reaction_reactants(reaction_id, stoic, metabolite_id) values (" + (j + 1) + ", " + reactants.get(r).getStoichiometry() + ", (select id from metabolites where metabolite_abbreviation='" + reactants.get(r).getSpecies() + "'));";
 								stat.executeUpdate(rrInsert);
 								String update = "update metabolites set used='true' where id=" + id + ";";
-								//String update = "update metabolites set used='true' where id=(select id from metabolites where metabolite_abbreviation='" + reactants.get(r).getSpecies() + "');";
 								stat.executeUpdate(update);	
 							}
 							
@@ -316,13 +314,9 @@ public class SBMLModelReader {
 						ListOf<SpeciesReference> products = reactions.get(j).getListOfProducts();
 						for (int p = 0; p < products.size(); p++) {	
 							Integer id = (Integer) metaboliteIdNameMap.get(products.get(p).getSpecies());
-							//String insert = "INSERT INTO reaction_reactants(reaction_id, stoic, metabolite_id) values (" + (j + 1) + ", " + reactants.get(r).getStoichiometry() + ", " + id + ");";
 							String rpInsert = "INSERT INTO reaction_products(reaction_id, stoic, metabolite_id) values (" + (j + 1) + ", " + products.get(p).getStoichiometry() + ", " + id + ");";
-							//String insert = "INSERT INTO reaction_products(reaction_id, stoic, metabolite_id) values (" + (j + 1) + ", " + products.get(p).getStoichiometry() + ", (select id from metabolites where metabolite_abbreviation='" + products.get(p).getSpecies() + "'));";
 							stat.executeUpdate(rpInsert);
-							//String update = "update metabolites set used='true' where id=" + id + ";";
 							String update = "update metabolites set used='true' where id=" + id + ";";
-							//String update = "update metabolites set used='true' where id=(select id from metabolites where metabolite_abbreviation='" + products.get(p).getSpecies() + "');";
 							stat.executeUpdate(update);
 
 							String stoicStr = "";

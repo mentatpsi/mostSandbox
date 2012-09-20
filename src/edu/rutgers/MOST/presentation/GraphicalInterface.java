@@ -953,9 +953,6 @@ public class GraphicalInterface extends JFrame {
 		JMenuItem gdbbItem = new JMenuItem("GDBB");
 		optimizeMenu.add(gdbbItem);
 
-		//JMenuItem gdlsItem = new JMenuItem("GDLS");
-		//optimizeMenu.add(gdlsItem);
-
 		menuBar.add(optimizeMenu);
 
 		JMenu helpMenu = new JMenu("Help");
@@ -1171,8 +1168,6 @@ public class GraphicalInterface extends JFrame {
 					setDatabaseName(filename); 
 					LocalConfig.getInstance().setLoadedDatabase(filename);
 					LocalConfig.getInstance().setProgress(0);
-					// Schedule a job for the event-dispatching thread:
-					// creating and showing this application's GUI.
 					progressBar.setVisible(true);
 
 					t.start();
@@ -1757,6 +1752,7 @@ public class GraphicalInterface extends JFrame {
 	/*******************************************************************************/
 	//table layouts
 	/*******************************************************************************/
+	//used in numerical columns so they are sorted by value and not as strings
 	Comparator numberComparator = new Comparator() {
         public int compare(Object o1, Object o2) {
             Double d1 = Double.valueOf(o1 == null ? "0" : (String)o1);
@@ -1803,7 +1799,6 @@ public class GraphicalInterface extends JFrame {
 	
 	HighlightPredicate invalidReactionPredicate = new HighlightPredicate() {
 		public boolean isHighlighted(Component renderer ,ComponentAdapter adapter) {
-			//if (adapter.getValue() != null && adapter.getValue().toString().contains("a")) {
 			if (adapter.getValue() != null && LocalConfig.getInstance().getInvalidReactions().contains(adapter.getValue().toString())) {
 				return true;
 			}					
@@ -1867,10 +1862,11 @@ public class GraphicalInterface extends JFrame {
 			
 			TableColumn column = reactionsTable.getColumnModel().getColumn(i);
 			if (i==GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN) {
-				//column.setMaxWidth(0);
-				//column.setMinWidth(0); 
-				//column.setWidth(0); 
-				//column.setPreferredWidth(0);
+				//sets column not visible
+				column.setMaxWidth(0);
+				column.setMinWidth(0); 
+				column.setWidth(0); 
+				column.setPreferredWidth(0);
 				ChangeName(reactionsTable, GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN, 
 						GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES[GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN]); 
 				column.setCellRenderer(reacGreyRenderer);
@@ -1883,8 +1879,6 @@ public class GraphicalInterface extends JFrame {
 				column.setPreferredWidth(GraphicalInterfaceConstants.KO_WIDTH); 
 				ChangeName(reactionsTable, GraphicalInterfaceConstants.KO_COLUMN, 
 						GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES[GraphicalInterfaceConstants.KO_COLUMN]); 
-				//JComboBox koCombo = new JComboBox(GraphicalInterfaceConstants.BOOLEAN_VALUES);
-				//column.setCellEditor(new DefaultCellEditor(koCombo));
 			}
 			if (i==GraphicalInterfaceConstants.FLUX_VALUE_COLUMN) {
 				ChangeName(reactionsTable, GraphicalInterfaceConstants.FLUX_VALUE_COLUMN, 
@@ -1909,8 +1903,6 @@ public class GraphicalInterface extends JFrame {
 				column.setPreferredWidth(GraphicalInterfaceConstants.REVERSIBLE_WIDTH);        //4
 				ChangeName(reactionsTable, GraphicalInterfaceConstants.REVERSIBLE_COLUMN, 
 						GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES[GraphicalInterfaceConstants.REVERSIBLE_COLUMN]); 
-				//JComboBox revCombo = new JComboBox(GraphicalInterfaceConstants.BOOLEAN_VALUES);
-				//column.setCellEditor(new DefaultCellEditor(revCombo));
 			}
 
 			if (i==GraphicalInterfaceConstants.BIOLOGICAL_OBJECTIVE_COLUMN) {
@@ -2145,11 +2137,12 @@ public class GraphicalInterface extends JFrame {
 			int metabMetaColumnCount = metabolitesMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getDatabaseName());	
 
 			TableColumn column = metabolitesTable.getColumnModel().getColumn(w);
-			if (w==GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN) {	
-				//column.setMaxWidth(0);
-				//column.setMinWidth(0); 
-				//column.setWidth(0); 
-				//column.setPreferredWidth(0);
+			if (w==GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN) {
+				//sets column not visible
+				column.setMaxWidth(0);
+				column.setMinWidth(0); 
+				column.setWidth(0); 
+				column.setPreferredWidth(0);
 				ChangeName(metabolitesTable, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN, 
 						GraphicalInterfaceConstants.METABOLITES_COLUMN_NAMES[GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN]);     
 				column.setCellRenderer(metabGreyRenderer);
@@ -2264,7 +2257,6 @@ public class GraphicalInterface extends JFrame {
 				} else {
 					ChangeName(metabolitesTable, GraphicalInterfaceConstants.METABOLITE_META9_COLUMN, "M");	    					 
 				}
-				//metabolitesTable.moveColumn(w, 4);
 			}
 			if (w==GraphicalInterfaceConstants.METABOLITE_META10_COLUMN) {				
 				column.setPreferredWidth(GraphicalInterfaceConstants.METABOLITE_META_DEFAULT_WIDTH);
@@ -2320,7 +2312,8 @@ public class GraphicalInterface extends JFrame {
 					ChangeName(metabolitesTable, GraphicalInterfaceConstants.METABOLITE_META15_COLUMN, "S");	    					 
 				}
 			} 
-			if (w==GraphicalInterfaceConstants.USED_COLUMN) {	
+			if (w==GraphicalInterfaceConstants.USED_COLUMN) {
+				//sets column not visible
 				column.setMaxWidth(0);
 				column.setMinWidth(0); 
 				column.setWidth(0); 
@@ -2485,8 +2478,6 @@ public class GraphicalInterface extends JFrame {
 		
 		JMenuItem selectColMenu = new JMenuItem();
 		selectColMenu.setText("Select Column(s)");
-		//selectColMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        //KeyEvent.VK_A, ActionEvent.CTRL_MASK));
 		selectColMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				selectReactionsColumns();
@@ -2593,9 +2584,6 @@ public class GraphicalInterface extends JFrame {
 					reactionInterface.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 					reactionInterface.setLocationRelativeTo(null);
 					reactionInterface.setVisible(true);
-					//reactionInterface.setModalityType(ModalityType.APPLICATION_MODAL); 
-					//needs to be a dialog for this to work, but does not work anyway
-					//reactionInterface.setAlwaysOnTop(true);
 					reactionInterface.submitButton.addActionListener(submitButtonActionListener);
 				} catch (ClassNotFoundException e2) {
 					// TODO Auto-generated catch block
@@ -2631,8 +2619,6 @@ public class GraphicalInterface extends JFrame {
 		if (columnIndex > 1) {
 			selectRowMenu.setEnabled(false);
 		}
-		//selectRowMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        //KeyEvent.VK_A, ActionEvent.CTRL_MASK));
 		selectRowMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				selectReactionsRows();
@@ -2642,8 +2628,6 @@ public class GraphicalInterface extends JFrame {
 		
 		JMenuItem selectColMenu = new JMenuItem();
 		selectColMenu.setText("Select Column(s)");
-		//selectColMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        //KeyEvent.VK_A, ActionEvent.CTRL_MASK));
 		selectColMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				selectReactionsColumns();
@@ -2819,8 +2803,6 @@ public class GraphicalInterface extends JFrame {
 		if (columnIndex > 1) {
 			selectRowMenu.setEnabled(false);
 		}
-		//selectRowMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        //KeyEvent.VK_A, ActionEvent.CTRL_MASK));
 		selectRowMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				selectMetabolitesRows();
@@ -2830,8 +2812,6 @@ public class GraphicalInterface extends JFrame {
 		
 		JMenuItem selectColMenu = new JMenuItem();
 		selectColMenu.setText("Select Column(s)");
-		//selectColMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        //KeyEvent.VK_A, ActionEvent.CTRL_MASK));
 		selectColMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				selectMetabolitesColumns();
@@ -3441,13 +3421,6 @@ public class GraphicalInterface extends JFrame {
 
 			aReaction.update();
 
-			//aFactory.listUsedMetabolites(getDatabaseName());
-
-			//String fileString = "jdbc:sqlite:" + databaseName + ".db";
-			//Class.forName("org.sqlite.JDBC");
-			//Connection con = DriverManager.getConnection(fileString);
-			//setUpReactionsTable(con);
-
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();			
@@ -3594,6 +3567,8 @@ public class GraphicalInterface extends JFrame {
 				t.stop();
 				progressBar.setVisible(false);
 				progressBar.dispose();
+				LocalConfig.getInstance().setProgress(0);
+				progressBar.progress.setIndeterminate(true);
 			}
 		}
 	}
