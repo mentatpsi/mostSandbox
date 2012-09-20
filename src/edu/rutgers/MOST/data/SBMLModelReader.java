@@ -3,14 +3,11 @@ package edu.rutgers.MOST.data;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
-
 import org.sbml.jsbml.*;
 
 import edu.rutgers.MOST.config.LocalConfig;
-//import edu.rutgers.MOST.presentation.ProgressConstants;
+import edu.rutgers.MOST.presentation.ProgressConstants;
 
 public class SBMLModelReader {
 	private String databaseName;
@@ -89,8 +86,7 @@ public class SBMLModelReader {
 				ListOf<Species> metabolites = doc.getModel().getListOfSpecies();
 				for (int i = 0; i < metabolites.size(); i++) {
 					if (i%10 == 0) {
-						LocalConfig.getInstance().setProgress((i*15)/metabolites.size());		
-						//LocalConfig.getInstance().setProgress((i*ProgressConstants.METABOLITE_LOAD_PERCENT)/metabolites.size());		
+						LocalConfig.getInstance().setProgress((i*ProgressConstants.METABOLITE_LOAD_PERCENT)/metabolites.size());		
 					}
 					
 					//if strings contain ' (single quote), it will not execute insert statement
@@ -257,8 +253,7 @@ public class SBMLModelReader {
 				ListOf<Reaction> reactions = doc.getModel().getListOfReactions();
 				for (int j = 0; j < reactions.size(); j++) {
 					if (j%10 == 0) {
-						LocalConfig.getInstance().setProgress((j*85)/reactions.size() + 15);		
-						//LocalConfig.getInstance().setProgress((j*ProgressConstants.REACTION_LOAD_PERCENT)/reactions.size() + ProgressConstants.METABOLITE_LOAD_PERCENT);		
+						LocalConfig.getInstance().setProgress((j*ProgressConstants.REACTION_LOAD_PERCENT)/reactions.size() + ProgressConstants.METABOLITE_LOAD_PERCENT);		
 					}
 					
 					StringBuffer reacBfr = new StringBuffer();

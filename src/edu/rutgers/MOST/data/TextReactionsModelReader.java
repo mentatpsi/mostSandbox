@@ -7,9 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.JOptionPane;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -227,6 +224,7 @@ public class TextReactionsModelReader {
 						} else {
 							reactionString = dataArray[LocalConfig.getInstance().getReactionEquationColumnIndex()];
 						}
+						reactionString = reactionString.trim();
 						
 						if (LocalConfig.getInstance().getReversibleColumnIndex() > -1) {
 							if (dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("false") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("FALSE") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("0") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("0.0") == 0) {
@@ -242,7 +240,7 @@ public class TextReactionsModelReader {
 							ReactionParser1 parser = new ReactionParser1();
 							boolean valid = true;
 							
-							ArrayList<ArrayList> reactants = parser.reactionList(reactionString).get(0);
+							ArrayList<ArrayList> reactants = parser.reactionList(reactionString.trim()).get(0);
 							//reactions of the type ==> b will be size 1, assigned the value [0] in parser
 							if (reactants.get(0).size() == 1) {
 							} else {
@@ -252,7 +250,7 @@ public class TextReactionsModelReader {
 										String reactant = (String) reactants.get(r).get(1);
 										String addMetab = "insert into metabolites (metabolite_abbreviation, boundary, used) values('"  + reactant + "', 'false', 'true');";	
 										
-										if (!(LocalConfig.getInstance().getMetaboliteIdNameMap().containsKey(reactant))) {
+										if (!(LocalConfig.getInstance().getMetaboliteIdNameMap().containsKey(reactant.trim()))) {
 											if (GraphicalInterface.showPrompt) {
 												Object[] options = {"Yes",
 														"Yes to All",
@@ -309,7 +307,7 @@ public class TextReactionsModelReader {
 								}
 							}
 							//reactions of the type a ==> will be size 1, assigned the value [0] in parser
-							ArrayList<ArrayList> products = parser.reactionList(reactionString).get(1);
+							ArrayList<ArrayList> products = parser.reactionList(reactionString.trim()).get(1);
 							if (products.get(0).size() == 1) {
 							} else {
 								for (int p = 0; p < products.size(); p++) {
