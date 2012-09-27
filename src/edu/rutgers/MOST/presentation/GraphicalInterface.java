@@ -1,8 +1,10 @@
 package edu.rutgers.MOST.presentation;
 
 import javax.swing.*;
+import javax.swing.RowFilter.ComparisonType;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.xml.stream.XMLStreamException;
 import org.jdesktop.swingx.JXTable;
@@ -94,7 +96,9 @@ public class GraphicalInterface extends JFrame {
 	javax.swing.Timer t = new javax.swing.Timer(1000, new TimeListener());
 
 	public static boolean highlightUnusedMetabolites;	
-	public static boolean showPrompt;	
+	public static boolean showPrompt;
+	public static boolean selectAll;	
+	public static boolean includeColumnNames;
 
 	public static int currentRow;
 
@@ -370,6 +374,9 @@ public class GraphicalInterface extends JFrame {
 		setMetabolitesSortColumnIndex(0);
 		setReactionsSortOrder(SortOrder.ASCENDING);
 		setMetabolitesSortOrder(SortOrder.ASCENDING);
+		
+		selectAll = true;	
+		includeColumnNames = true;
 		
 		listModel.addElement(GraphicalInterfaceConstants.DEFAULT_DATABASE_NAME);
 		
@@ -777,7 +784,7 @@ public class GraphicalInterface extends JFrame {
 				highlightUnusedMetabolitesItem.setState(false);
 			}
 		});   
-
+		
 		editMenu.addSeparator(); 
 
 		JMenuItem addReacRowItem = new JMenuItem("Add Row to Reactions Table");
@@ -2485,16 +2492,49 @@ public class GraphicalInterface extends JFrame {
 		});
 		reactionsContextMenu.add(selectColMenu);	
 		
-		JMenuItem selectAllMenu = new JMenuItem();
-		selectAllMenu.setText("Select All");
-		selectAllMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_A, ActionEvent.CTRL_MASK));
-		selectAllMenu.addActionListener(new ActionListener() {
+JMenu selectAllMenu = new JMenu("Select All");
+		
+		final JRadioButtonMenuItem inclColNamesItem = new JRadioButtonMenuItem(
+        "Include Column Names");
+		final JRadioButtonMenuItem selectCellsOnly = new JRadioButtonMenuItem(
+        "Select Cells Only");
+
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(inclColNamesItem);
+		bg.add(selectCellsOnly);
+		inclColNamesItem.setSelected(includeColumnNames);
+		selectCellsOnly.setSelected(!includeColumnNames);
+		
+		inclColNamesItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				reactionsTable.selectAll();
+				if (inclColNamesItem.isSelected()) {
+					includeColumnNames = true;
+				} else {
+					includeColumnNames = false;
+				}				
+				selectAll = true;
+				System.out.println(includeColumnNames);
 				selectReactionsRows();
 			}
 		});
+		selectCellsOnly.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				reactionsTable.selectAll();
+				if (selectCellsOnly.isSelected()) {
+					includeColumnNames = false;
+				} else {
+					includeColumnNames = true;
+				}				
+				selectAll = true;
+				System.out.println(includeColumnNames);
+				selectReactionsRows();
+			}
+		});
+        
+        selectAllMenu.add(inclColNamesItem);
+        selectAllMenu.add(selectCellsOnly);
+		
 		reactionsContextMenu.add(selectAllMenu);
 		
 		reactionsContextMenu.addSeparator();
@@ -2635,17 +2675,50 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(selectColMenu);		
 		
-		JMenuItem selectAllMenu = new JMenuItem();
-		selectAllMenu.setText("Select All");
-		selectAllMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_A, ActionEvent.CTRL_MASK));
-		selectAllMenu.addActionListener(new ActionListener() {
+		JMenu selectAllMenu = new JMenu("Select All");
+		
+		final JRadioButtonMenuItem inclColNamesItem = new JRadioButtonMenuItem(
+        "Include Column Names");
+		final JRadioButtonMenuItem selectCellsOnly = new JRadioButtonMenuItem(
+        "Select Cells Only");
+
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(inclColNamesItem);
+		bg.add(selectCellsOnly);
+		inclColNamesItem.setSelected(includeColumnNames);
+		selectCellsOnly.setSelected(!includeColumnNames);
+		
+		inclColNamesItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				reactionsTable.selectAll();
+				if (inclColNamesItem.isSelected()) {
+					includeColumnNames = true;
+				} else {
+					includeColumnNames = false;
+				}				
+				selectAll = true;
+				System.out.println(includeColumnNames);
 				selectReactionsRows();
 			}
 		});
-		contextMenu.add(selectAllMenu);
+		selectCellsOnly.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				reactionsTable.selectAll();
+				if (selectCellsOnly.isSelected()) {
+					includeColumnNames = false;
+				} else {
+					includeColumnNames = true;
+				}				
+				selectAll = true;
+				System.out.println(includeColumnNames);
+				selectReactionsRows();
+			}
+		});
+        
+        selectAllMenu.add(inclColNamesItem);
+        selectAllMenu.add(selectCellsOnly);
+
+        contextMenu.add(selectAllMenu);
 		
 		contextMenu.addSeparator();
 		
@@ -3248,6 +3321,13 @@ public class GraphicalInterface extends JFrame {
 		}	   
 	}
 
+	public void setRowFilter(RowFilter<ReactionsDatabaseTableModel, Integer> filter) {
+        if (reactionsTable.getRowSorter() instanceof DefaultRowSorter<?, ?>) {
+            DefaultRowSorter sorter = (DefaultRowSorter) reactionsTable.getRowSorter();
+            sorter.setRowFilter(filter);
+        }
+    }
+	
 	public void setUpReactionsTable(Connection con) {
 
 		try {
@@ -3261,17 +3341,7 @@ public class GraphicalInterface extends JFrame {
 				setReactionsSortColumnIndex(0);
 				setReactionsSortOrder(SortOrder.ASCENDING);
 			}
-			/*
-			int r = reactionsTable.getModel().getColumnCount();
-			ReactionsMetaColumnManager reactionsMetaColumnManager = new ReactionsMetaColumnManager();
-			int metaColumnCount = reactionsMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getDatabaseName());	
 			
-			for (int j = r - 1; j >= GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES.length; j--) {
-				if (j > metaColumnCount) {
-					reactionsTable.getColumnExt(j).setVisible(false);	
-				}
-			}
-            */
 			setParticipatingMetabolite("   ");			
 
 		} catch (SQLException e) {
@@ -3328,7 +3398,9 @@ public class GraphicalInterface extends JFrame {
 		*/
 		showPrompt = true;
 		highlightUnusedMetabolites = false;
-		highlightUnusedMetabolitesItem.setState(false); 
+		highlightUnusedMetabolitesItem.setState(false);
+		selectAll = true;	
+		includeColumnNames = true;
 		setReactionsSortColumnIndex(0);
 		setMetabolitesSortColumnIndex(0);
 		LocalConfig.getInstance().getInvalidReactions().clear();
@@ -3584,6 +3656,10 @@ public class GraphicalInterface extends JFrame {
 	//http://stackoverflow.com/questions/4671657/how-to-copy-content-of-the-jtable-to-clipboard
 	
 	public void selectReactionsRows() {
+		setClipboardContents("");
+		ReactionsMetaColumnManager reactionsMetaColumnManager = new ReactionsMetaColumnManager();
+		int metaColumnCount = reactionsMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getDatabaseName());	
+		
 		reactionsTable.setColumnSelectionAllowed(false);
 		reactionsTable.setRowSelectionAllowed(true);
 		StringBuffer sbf=new StringBuffer();
@@ -3591,6 +3667,24 @@ public class GraphicalInterface extends JFrame {
 		System.out.println(numrows);
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
 		int[] rowsselected=reactionsTable.getSelectedRows();  
+		
+		if (selectAll == true && includeColumnNames == true) {
+			//add column names to clipboard
+			for (int c = 1; c < GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES.length; c++) {
+				sbf.append(GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES[c]);
+				if (c < GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES.length - 1) {
+					sbf.append("\t"); 
+				}
+			}
+			if (metaColumnCount > 0) {
+				for (int r = 1; r <= metaColumnCount; r++) {
+					sbf.append("\t");
+					sbf.append(reactionsMetaColumnManager.getColumnName(LocalConfig.getInstance().getDatabaseName(), r));
+				}
+			}
+			sbf.append("\n");
+		}
+				
 		for (int i = 0; i < numrows; i++) {
 			//starts at 1 to avoid reading hidden db id column
 			for (int j = 1; j < reactionsTable.getColumnCount() - 1; j++) 
@@ -3605,7 +3699,7 @@ public class GraphicalInterface extends JFrame {
 			sbf.append("\n"); 
 		}  
 		setClipboardContents(sbf.toString());
-		System.out.println(sbf.toString());
+		//System.out.println(sbf.toString());
 	}
 	
 	public void selectReactionsColumns() {
