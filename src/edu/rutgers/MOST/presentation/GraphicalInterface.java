@@ -97,8 +97,10 @@ public class GraphicalInterface extends JFrame {
 
 	public static boolean highlightUnusedMetabolites;	
 	public static boolean showPrompt;
-	public static boolean selectAll;	
-	public static boolean includeColumnNames;
+	public static boolean selectAllRxn;	
+	public static boolean includeRxnColumnNames;
+	public static boolean selectAllMtb;	
+	public static boolean includeMtbColumnNames;
 
 	public static int currentRow;
 
@@ -375,8 +377,10 @@ public class GraphicalInterface extends JFrame {
 		setReactionsSortOrder(SortOrder.ASCENDING);
 		setMetabolitesSortOrder(SortOrder.ASCENDING);
 		
-		selectAll = true;	
-		includeColumnNames = true;
+		selectAllRxn = true;	
+		includeRxnColumnNames = true;
+		selectAllMtb = true;	
+		includeMtbColumnNames = true;
 		
 		listModel.addElement(GraphicalInterfaceConstants.DEFAULT_DATABASE_NAME);
 		
@@ -2492,7 +2496,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		reactionsContextMenu.add(selectColMenu);	
 		
-JMenu selectAllMenu = new JMenu("Select All");
+		JMenu selectAllMenu = new JMenu("Select All");
 		
 		final JRadioButtonMenuItem inclColNamesItem = new JRadioButtonMenuItem(
         "Include Column Names");
@@ -2502,19 +2506,19 @@ JMenu selectAllMenu = new JMenu("Select All");
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(inclColNamesItem);
 		bg.add(selectCellsOnly);
-		inclColNamesItem.setSelected(includeColumnNames);
-		selectCellsOnly.setSelected(!includeColumnNames);
+		inclColNamesItem.setSelected(includeRxnColumnNames);
+		selectCellsOnly.setSelected(!includeRxnColumnNames);
 		
 		inclColNamesItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				reactionsTable.selectAll();
 				if (inclColNamesItem.isSelected()) {
-					includeColumnNames = true;
+					includeRxnColumnNames = true;
 				} else {
-					includeColumnNames = false;
+					includeRxnColumnNames = false;
 				}				
-				selectAll = true;
-				System.out.println(includeColumnNames);
+				selectAllRxn = true;
+				System.out.println(includeRxnColumnNames);
 				selectReactionsRows();
 			}
 		});
@@ -2522,12 +2526,12 @@ JMenu selectAllMenu = new JMenu("Select All");
 			public void actionPerformed(ActionEvent e) {
 				reactionsTable.selectAll();
 				if (selectCellsOnly.isSelected()) {
-					includeColumnNames = false;
+					includeRxnColumnNames = false;
 				} else {
-					includeColumnNames = true;
+					includeRxnColumnNames = true;
 				}				
-				selectAll = true;
-				System.out.println(includeColumnNames);
+				selectAllRxn = true;
+				System.out.println(includeRxnColumnNames);
 				selectReactionsRows();
 			}
 		});
@@ -2685,19 +2689,19 @@ JMenu selectAllMenu = new JMenu("Select All");
 		ButtonGroup bg = new ButtonGroup();
 		bg.add(inclColNamesItem);
 		bg.add(selectCellsOnly);
-		inclColNamesItem.setSelected(includeColumnNames);
-		selectCellsOnly.setSelected(!includeColumnNames);
+		inclColNamesItem.setSelected(includeRxnColumnNames);
+		selectCellsOnly.setSelected(!includeRxnColumnNames);
 		
 		inclColNamesItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				reactionsTable.selectAll();
 				if (inclColNamesItem.isSelected()) {
-					includeColumnNames = true;
+					includeRxnColumnNames = true;
 				} else {
-					includeColumnNames = false;
+					includeRxnColumnNames = false;
 				}				
-				selectAll = true;
-				System.out.println(includeColumnNames);
+				selectAllRxn = true;
+				System.out.println(includeRxnColumnNames);
 				selectReactionsRows();
 			}
 		});
@@ -2705,12 +2709,12 @@ JMenu selectAllMenu = new JMenu("Select All");
 			public void actionPerformed(ActionEvent e) {
 				reactionsTable.selectAll();
 				if (selectCellsOnly.isSelected()) {
-					includeColumnNames = false;
+					includeRxnColumnNames = false;
 				} else {
-					includeColumnNames = true;
+					includeRxnColumnNames = true;
 				}				
-				selectAll = true;
-				System.out.println(includeColumnNames);
+				selectAllRxn = true;
+				System.out.println(includeRxnColumnNames);
 				selectReactionsRows();
 			}
 		});
@@ -2892,17 +2896,50 @@ JMenu selectAllMenu = new JMenu("Select All");
 		});
 		contextMenu.add(selectColMenu);		
 		
-		JMenuItem selectAllMenu = new JMenuItem();
-		selectAllMenu.setText("Select All");
-		selectAllMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_A, ActionEvent.CTRL_MASK));
-		selectAllMenu.addActionListener(new ActionListener() {
+		JMenu selectAllMenu = new JMenu("Select All");
+		
+		final JRadioButtonMenuItem inclColNamesItem = new JRadioButtonMenuItem(
+        "Include Column Names");
+		final JRadioButtonMenuItem selectCellsOnly = new JRadioButtonMenuItem(
+        "Select Cells Only");
+
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(inclColNamesItem);
+		bg.add(selectCellsOnly);
+		inclColNamesItem.setSelected(includeMtbColumnNames);
+		selectCellsOnly.setSelected(!includeMtbColumnNames);
+		
+		inclColNamesItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				metabolitesTable.selectAll();
+				if (inclColNamesItem.isSelected()) {
+					includeMtbColumnNames = true;
+				} else {
+					includeMtbColumnNames = false;
+				}				
+				selectAllMtb = true;
+				System.out.println(includeMtbColumnNames);
 				selectMetabolitesRows();
 			}
 		});
-		contextMenu.add(selectAllMenu);
+		selectCellsOnly.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				metabolitesTable.selectAll();
+				if (selectCellsOnly.isSelected()) {
+					includeMtbColumnNames = false;
+				} else {
+					includeMtbColumnNames = true;
+				}				
+				selectAllMtb = true;
+				System.out.println(includeMtbColumnNames);
+				selectMetabolitesRows();
+			}
+		});
+        
+        selectAllMenu.add(inclColNamesItem);
+        selectAllMenu.add(selectCellsOnly);
+
+        contextMenu.add(selectAllMenu);
 		
 		contextMenu.addSeparator();
 		
@@ -3037,17 +3074,50 @@ JMenu selectAllMenu = new JMenu("Select All");
 		});
 		contextMenu.add(selectColMenu);		
 		
-		JMenuItem selectAllMenu = new JMenuItem();
-		selectAllMenu.setText("Select All");
-		selectAllMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_A, ActionEvent.CTRL_MASK));
-		selectAllMenu.addActionListener(new ActionListener() {
+		JMenu selectAllMenu = new JMenu("Select All");
+		
+		final JRadioButtonMenuItem inclColNamesItem = new JRadioButtonMenuItem(
+        "Include Column Names");
+		final JRadioButtonMenuItem selectCellsOnly = new JRadioButtonMenuItem(
+        "Select Cells Only");
+
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(inclColNamesItem);
+		bg.add(selectCellsOnly);
+		inclColNamesItem.setSelected(includeMtbColumnNames);
+		selectCellsOnly.setSelected(!includeMtbColumnNames);
+		
+		inclColNamesItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				metabolitesTable.selectAll();
+				if (inclColNamesItem.isSelected()) {
+					includeMtbColumnNames = true;
+				} else {
+					includeMtbColumnNames = false;
+				}				
+				selectAllMtb = true;
+				System.out.println(includeMtbColumnNames);
 				selectMetabolitesRows();
 			}
 		});
-		contextMenu.add(selectAllMenu);
+		selectCellsOnly.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				metabolitesTable.selectAll();
+				if (selectCellsOnly.isSelected()) {
+					includeMtbColumnNames = false;
+				} else {
+					includeMtbColumnNames = true;
+				}				
+				selectAllMtb = true;
+				System.out.println(includeMtbColumnNames);
+				selectMetabolitesRows();
+			}
+		});
+        
+        selectAllMenu.add(inclColNamesItem);
+        selectAllMenu.add(selectCellsOnly);
+
+        contextMenu.add(selectAllMenu);
 		
 		contextMenu.addSeparator();
 		
@@ -3399,8 +3469,10 @@ JMenu selectAllMenu = new JMenu("Select All");
 		showPrompt = true;
 		highlightUnusedMetabolites = false;
 		highlightUnusedMetabolitesItem.setState(false);
-		selectAll = true;	
-		includeColumnNames = true;
+		selectAllRxn = true;	
+		includeRxnColumnNames = true;
+		selectAllMtb = true;	
+		includeMtbColumnNames = true;
 		setReactionsSortColumnIndex(0);
 		setMetabolitesSortColumnIndex(0);
 		LocalConfig.getInstance().getInvalidReactions().clear();
@@ -3658,7 +3730,7 @@ JMenu selectAllMenu = new JMenu("Select All");
 	public void selectReactionsRows() {
 		setClipboardContents("");
 		ReactionsMetaColumnManager reactionsMetaColumnManager = new ReactionsMetaColumnManager();
-		int metaColumnCount = reactionsMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getDatabaseName());	
+		int metaColumnCount = reactionsMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getLoadedDatabase());	
 		
 		reactionsTable.setColumnSelectionAllowed(false);
 		reactionsTable.setRowSelectionAllowed(true);
@@ -3668,7 +3740,7 @@ JMenu selectAllMenu = new JMenu("Select All");
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
 		int[] rowsselected=reactionsTable.getSelectedRows();  
 		
-		if (selectAll == true && includeColumnNames == true) {
+		if (selectAllRxn == true && includeRxnColumnNames == true) {
 			//add column names to clipboard
 			for (int c = 1; c < GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES.length; c++) {
 				sbf.append(GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES[c]);
@@ -3679,7 +3751,7 @@ JMenu selectAllMenu = new JMenu("Select All");
 			if (metaColumnCount > 0) {
 				for (int r = 1; r <= metaColumnCount; r++) {
 					sbf.append("\t");
-					sbf.append(reactionsMetaColumnManager.getColumnName(LocalConfig.getInstance().getDatabaseName(), r));
+					sbf.append(reactionsMetaColumnManager.getColumnName(LocalConfig.getInstance().getLoadedDatabase(), r));
 				}
 			}
 			sbf.append("\n");
@@ -3963,12 +4035,34 @@ JMenu selectAllMenu = new JMenu("Select All");
 	/**************************************************************************/
 	
 	public void selectMetabolitesRows() {
+		setClipboardContents("");
+		MetabolitesMetaColumnManager metabolitesMetaColumnManager = new MetabolitesMetaColumnManager();
+		int metaColumnCount = metabolitesMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getLoadedDatabase());	
+		
 		metabolitesTable.setColumnSelectionAllowed(false);
 		metabolitesTable.setRowSelectionAllowed(true);
 		StringBuffer sbf=new StringBuffer();
 		int numrows = metabolitesTable.getSelectedRowCount(); 
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
 		int[] rowsselected=metabolitesTable.getSelectedRows();  
+		
+		if (selectAllMtb == true && includeMtbColumnNames == true) {
+			//add column names to clipboard
+			for (int c = 1; c < GraphicalInterfaceConstants.METABOLITES_COLUMN_NAMES.length; c++) {
+				sbf.append(GraphicalInterfaceConstants.METABOLITES_COLUMN_NAMES[c]);
+				if (c < GraphicalInterfaceConstants.METABOLITES_COLUMN_NAMES.length - 1) {
+					sbf.append("\t"); 
+				}
+			}
+			if (metaColumnCount > 0) {
+				for (int r = 1; r <= metaColumnCount; r++) {
+					sbf.append("\t");
+					sbf.append(metabolitesMetaColumnManager.getColumnName(LocalConfig.getInstance().getLoadedDatabase(), r));
+				}
+			}
+			sbf.append("\n");
+		}
+		
 		for (int i = 0; i < numrows; i++) {
 			//starts at 1 to avoid reading hidden db id column 
 			//and column count -2 to avoid reading hidden used column
