@@ -101,6 +101,8 @@ public class GraphicalInterface extends JFrame {
 	public static boolean includeRxnColumnNames;
 	public static boolean selectAllMtb;	
 	public static boolean includeMtbColumnNames;
+	public static boolean rxnColSelectionMode;;	
+	public static boolean mtbColSelectionMode;
 
 	public static int currentRow;
 
@@ -380,7 +382,9 @@ public class GraphicalInterface extends JFrame {
 		selectAllRxn = true;	
 		includeRxnColumnNames = true;
 		selectAllMtb = true;	
-		includeMtbColumnNames = true;
+		includeMtbColumnNames = true;	
+		rxnColSelectionMode = false;
+		mtbColSelectionMode = false;
 		
 		listModel.addElement(GraphicalInterfaceConstants.DEFAULT_DATABASE_NAME);
 		
@@ -1041,7 +1045,7 @@ public class GraphicalInterface extends JFrame {
 		};
 		
 		KeyStroke reacCopy = KeyStroke.getKeyStroke(KeyEvent.VK_C,ActionEvent.CTRL_MASK,false);       
-		KeyStroke reacPaste = KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK,false); 
+		KeyStroke reacPaste = KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK,false); 		
 		KeyStroke reacClear = KeyStroke.getKeyStroke(KeyEvent.VK_E,ActionEvent.CTRL_MASK,false); 
 		
 		setUpReactionsTable(con);
@@ -1050,7 +1054,7 @@ public class GraphicalInterface extends JFrame {
 		reactionsTable.addMouseListener(reactionsPopupListener);
 		reactionsTable.setRowHeight(20);
 		reactionsTable.registerKeyboardAction(reactionsCopyActionListener,reacCopy,JComponent.WHEN_FOCUSED); 
-		reactionsTable.registerKeyboardAction(reactionsPasteActionListener,reacPaste,JComponent.WHEN_FOCUSED); 
+		reactionsTable.registerKeyboardAction(reactionsPasteActionListener,reacPaste,JComponent.WHEN_FOCUSED); 		
 		reactionsTable.registerKeyboardAction(reactionsClearActionListener,reacClear,JComponent.WHEN_FOCUSED); 
 		
 		ActionListener metabolitesCopyActionListener = new ActionListener() {
@@ -1874,10 +1878,10 @@ public class GraphicalInterface extends JFrame {
 			TableColumn column = reactionsTable.getColumnModel().getColumn(i);
 			if (i==GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN) {
 				//sets column not visible
-				column.setMaxWidth(0);
-				column.setMinWidth(0); 
-				column.setWidth(0); 
-				column.setPreferredWidth(0);
+				//column.setMaxWidth(0);
+				//column.setMinWidth(0); 
+				//column.setWidth(0); 
+				//column.setPreferredWidth(0);
 				ChangeName(reactionsTable, GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN, 
 						GraphicalInterfaceConstants.REACTIONS_COLUMN_NAMES[GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN]); 
 				column.setCellRenderer(reacGreyRenderer);
@@ -2150,10 +2154,10 @@ public class GraphicalInterface extends JFrame {
 			TableColumn column = metabolitesTable.getColumnModel().getColumn(w);
 			if (w==GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN) {
 				//sets column not visible
-				column.setMaxWidth(0);
-				column.setMinWidth(0); 
-				column.setWidth(0); 
-				column.setPreferredWidth(0);
+				//column.setMaxWidth(0);
+				//column.setMinWidth(0); 
+				//column.setWidth(0); 
+				//column.setPreferredWidth(0);
 				ChangeName(metabolitesTable, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN, 
 						GraphicalInterfaceConstants.METABOLITES_COLUMN_NAMES[GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN]);     
 				column.setCellRenderer(metabGreyRenderer);
@@ -2487,14 +2491,18 @@ public class GraphicalInterface extends JFrame {
 			final int columnIndex) {
 		JPopupMenu reactionsContextMenu = new JPopupMenu();
 		
-		JMenuItem selectColMenu = new JMenuItem();
-		selectColMenu.setText("Select Column(s)");
-		selectColMenu.addActionListener(new ActionListener() {
+		JMenuItem selectReacColMenu = new JMenuItem("Select Column(s)");
+		if (rowIndex > 0) {
+			selectReacColMenu.setEnabled(false);
+		}
+		
+		selectReacColMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				rxnColSelectionMode = true;
 				selectReactionsColumns();
 			}
 		});
-		reactionsContextMenu.add(selectColMenu);	
+		reactionsContextMenu.add(selectReacColMenu);	
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -2543,8 +2551,7 @@ public class GraphicalInterface extends JFrame {
 		
 		reactionsContextMenu.addSeparator();
 			
-		JMenuItem copyMenu = new JMenuItem();
-		copyMenu.setText("Copy");
+		JMenuItem copyMenu = new JMenuItem("Copy");
 		copyMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_C, ActionEvent.CTRL_MASK));
 		copyMenu.addActionListener(new ActionListener() {
@@ -2554,8 +2561,10 @@ public class GraphicalInterface extends JFrame {
 		});
 		reactionsContextMenu.add(copyMenu);
 
-		JMenuItem pasteMenu = new JMenuItem();
-		pasteMenu.setText("Paste");
+		JMenuItem pasteMenu = new JMenuItem("Paste");
+		if (rowIndex > 0 && rxnColSelectionMode == true) {
+			pasteMenu.setEnabled(false);
+		}
 		pasteMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_V, ActionEvent.CTRL_MASK));
 		if (isClipboardContainingText(this)
@@ -2670,14 +2679,18 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(selectRowMenu);	
 		
-		JMenuItem selectColMenu = new JMenuItem();
-		selectColMenu.setText("Select Column(s)");
-		selectColMenu.addActionListener(new ActionListener() {
+		JMenuItem selectReacColMenu = new JMenuItem("Select Column(s)");
+		if (rowIndex > 0) {
+			selectReacColMenu.setEnabled(false);
+		}
+		
+		selectReacColMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				rxnColSelectionMode = true;
 				selectReactionsColumns();
 			}
 		});
-		contextMenu.add(selectColMenu);		
+		contextMenu.add(selectReacColMenu);		
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -2737,8 +2750,10 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(copyMenu);
 
-		JMenuItem pasteMenu = new JMenuItem();
-		pasteMenu.setText("Paste");
+		JMenuItem pasteMenu = new JMenuItem("Paste");
+		if (rowIndex > 0 && rxnColSelectionMode == true) {
+			pasteMenu.setEnabled(false);
+		}
 		pasteMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_V, ActionEvent.CTRL_MASK));
 		if (isClipboardContainingText(this)
@@ -2887,14 +2902,18 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(selectRowMenu);	
 		
-		JMenuItem selectColMenu = new JMenuItem();
-		selectColMenu.setText("Select Column(s)");
-		selectColMenu.addActionListener(new ActionListener() {
+		JMenuItem selectMetabColMenu = new JMenuItem("Select Column(s)");
+		if (rowIndex > 0) {
+			selectMetabColMenu.setEnabled(false);
+		}
+		
+		selectMetabColMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				mtbColSelectionMode = true;
 				selectMetabolitesColumns();
 			}
 		});
-		contextMenu.add(selectColMenu);		
+		contextMenu.add(selectMetabColMenu);		
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -2955,8 +2974,10 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(copyMenu);
 
-		JMenuItem pasteMenu = new JMenuItem();
-		pasteMenu.setText("Paste");
+		JMenuItem pasteMenu = new JMenuItem("Paste");
+		if (rowIndex > 0 && mtbColSelectionMode == true) {
+			pasteMenu.setEnabled(false);
+		}
 		pasteMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_V, ActionEvent.CTRL_MASK));
 		if (isClipboardContainingText(this)
@@ -3063,16 +3084,18 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(selectRowMenu);	
 		
-		JMenuItem selectColMenu = new JMenuItem();
-		selectColMenu.setText("Select Column(s)");
-		//selectColMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        //KeyEvent.VK_A, ActionEvent.CTRL_MASK));
-		selectColMenu.addActionListener(new ActionListener() {
+		JMenuItem selectMetabColMenu = new JMenuItem("Select Column(s)");
+		if (rowIndex > 0) {
+			selectMetabColMenu.setEnabled(false);
+		}
+		
+		selectMetabColMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				mtbColSelectionMode = true;
 				selectMetabolitesColumns();
 			}
 		});
-		contextMenu.add(selectColMenu);		
+		contextMenu.add(selectMetabColMenu);		
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -3133,8 +3156,10 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(copyMenu);
 
-		JMenuItem pasteMenu = new JMenuItem();
-		pasteMenu.setText("Paste");
+		JMenuItem pasteMenu = new JMenuItem("Paste");
+		if (rowIndex > 0 && mtbColSelectionMode == true) {
+			pasteMenu.setEnabled(false);
+		}
 		pasteMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_V, ActionEvent.CTRL_MASK));
 		if (isClipboardContainingText(this)
@@ -3473,6 +3498,8 @@ public class GraphicalInterface extends JFrame {
 		includeRxnColumnNames = true;
 		selectAllMtb = true;	
 		includeMtbColumnNames = true;
+		rxnColSelectionMode = false;
+		mtbColSelectionMode = false;
 		setReactionsSortColumnIndex(0);
 		setMetabolitesSortColumnIndex(0);
 		LocalConfig.getInstance().getInvalidReactions().clear();
@@ -3775,8 +3802,10 @@ public class GraphicalInterface extends JFrame {
 	}
 	
 	public void selectReactionsColumns() {
-		reactionsTable.setColumnSelectionAllowed(true);
-		reactionsTable.setRowSelectionAllowed(false);
+		ListSelectionModel selectionModel = 
+			reactionsTable.getSelectionModel();
+			selectionModel.setSelectionInterval(0, reactionsTable.getModel().getRowCount() - 1);
+		
 		StringBuffer sbf=new StringBuffer();
 		int numcols = reactionsTable.getSelectedColumnCount(); 
 		LocalConfig.getInstance().setNumberCopiedRows(reactionsTable.getRowCount());
@@ -3794,10 +3823,11 @@ public class GraphicalInterface extends JFrame {
 			sbf.append("\n"); 
 		}  
 		setClipboardContents(sbf.toString());
-		System.out.println(sbf.toString());
+		//System.out.println(sbf.toString());
 	}
 	
 	public void reactionsCopy() {
+		rxnColSelectionMode = false;
 		StringBuffer sbf=new StringBuffer(); 
 		// Check to ensure we have selected only a contiguous block of 
 		// cells 
@@ -3834,72 +3864,79 @@ public class GraphicalInterface extends JFrame {
 
 	public void reactionsPaste() {
 		String trstring = getClipboardContents(GraphicalInterface.this);
-		int startRow=(reactionsTable.getSelectedRows())[0]; 
+		int startRow = (reactionsTable.getSelectedRows())[0];
 		int startCol=(reactionsTable.getSelectedColumns())[0];
-		if (LocalConfig.getInstance().getNumberCopiedRows() != null && reactionsTable.getSelectedRows().length >= LocalConfig.getInstance().getNumberCopiedRows()) {
-			if (LocalConfig.getInstance().getNumberCopiedRows() > 0) {
-				//if selected area is larger than copied area, it will fill the same cell
-				//contents repeatedly until end of selection, based on integer division
-				//with no remainder
-				int quotient = reactionsTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
-				for (int r = 0; r < quotient; r++) {
-					try 
-					{ 
-						trstring = getClipboardContents(GraphicalInterface.this);
-						StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-						for(int i=0;st1.hasMoreTokens();i++) 
+		if (rxnColSelectionMode == true && startRow != 0) {
+			//do not paste if column is selected and selected cell is not 
+			//in first row since it would result in an index error
+		} else {
+			if (LocalConfig.getInstance().getNumberCopiedRows() != null && reactionsTable.getSelectedRows().length >= LocalConfig.getInstance().getNumberCopiedRows()) {
+				if (LocalConfig.getInstance().getNumberCopiedRows() > 0) {
+					//if selected area is larger than copied area, it will fill the same cell
+					//contents repeatedly until end of selection, based on integer division
+					//with no remainder
+					int quotient = reactionsTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
+					for (int r = 0; r < quotient; r++) {
+						try 
 						{ 
-							String rowstring=st1.nextToken(); 
-							StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-							for(int j=0;st2.hasMoreTokens();j++) 
+							trstring = getClipboardContents(GraphicalInterface.this);
+							StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
+							for(int i=0;st1.hasMoreTokens();i++) 
 							{ 
-								String value=(String)st2.nextToken(); 
-								int viewRow = 0;
-								if (startRow+i< reactionsTable.getRowCount()  && 
-										startCol+j< reactionsTable.getColumnCount()) 
-									viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+i);
-								reactionsTable.setValueAt(value,startRow+i,startCol+j);
-								updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+								String rowstring=st1.nextToken(); 
+								StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
+								for(int j=0;st2.hasMoreTokens();j++) 
+								{ 
+									String value=(String)st2.nextToken(); 
+									int viewRow = 0;
+									if (startRow+i< reactionsTable.getRowCount()  && 
+											startCol+j< reactionsTable.getColumnCount()) 
+										viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+i);
+									reactionsTable.setValueAt(value,startRow+i,startCol+j);
+									updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+								} 
 							} 
 						} 
-					} 
-					catch(Exception ex){
-						//ex.printStackTrace();
-						System.out.println("Paste error");
-					} 
-					startRow += LocalConfig.getInstance().getNumberCopiedRows();
+						catch(Exception ex){
+							//ex.printStackTrace();
+							System.out.println("Paste error");
+						} 
+						startRow += LocalConfig.getInstance().getNumberCopiedRows();
+					}
 				}
-			}
-			//if selected area is smaller than copied area, fills in copied area
-			//from first selected cell as upper left
-		} else {
-			try 
-			{ 
-				trstring = getClipboardContents(GraphicalInterface.this);
-				StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-				for(int i=0;st1.hasMoreTokens();i++) 
+				//if selected area is smaller than copied area, fills in copied area
+				//from first selected cell as upper left
+			} else {
+				try 
 				{ 
-					String rowstring=st1.nextToken(); 
-					StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-					for(int j=0;st2.hasMoreTokens();j++) 
+					trstring = getClipboardContents(GraphicalInterface.this);
+					StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
+					for(int i=0;st1.hasMoreTokens();i++) 
 					{ 
-						String value=(String)st2.nextToken(); 
-						int viewRow = 0;
-						if (startRow+i< reactionsTable.getRowCount()  && 
-								startCol+j< reactionsTable.getColumnCount()) 
-							viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+i);
-						reactionsTable.setValueAt(value,startRow+i,startCol+j);
-						updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						String rowstring=st1.nextToken(); 
+						StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
+						for(int j=0;st2.hasMoreTokens();j++) 
+						{ 
+							String value=(String)st2.nextToken(); 
+							int viewRow = 0;
+							if (startRow+i< reactionsTable.getRowCount()  && 
+									startCol+j< reactionsTable.getColumnCount()) 
+								viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+i);
+							reactionsTable.setValueAt(value,startRow+i,startCol+j);
+							updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						} 
 					} 
 				} 
-			} 
-			catch(Exception ex){
-				//ex.printStackTrace();
-				System.out.println("Paste error");
-			} 
+				catch(Exception ex){
+					//ex.printStackTrace();
+					System.out.println("Paste error");
+				} 
+			}
 		}
-		reactionsTable.setColumnSelectionAllowed(true);
-		reactionsTable.setRowSelectionAllowed(true);
+		
+		//rxnColSelectionMode = false;
+		//reactionsTable.setColumnSelectionAllowed(true);
+		//reactionsTable.setRowSelectionAllowed(true);
 	}
 
 	public void reactionsClear() {
@@ -4038,9 +4075,7 @@ public class GraphicalInterface extends JFrame {
 		setClipboardContents("");
 		MetabolitesMetaColumnManager metabolitesMetaColumnManager = new MetabolitesMetaColumnManager();
 		int metaColumnCount = metabolitesMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getLoadedDatabase());	
-		
-		metabolitesTable.setColumnSelectionAllowed(false);
-		metabolitesTable.setRowSelectionAllowed(true);
+
 		StringBuffer sbf=new StringBuffer();
 		int numrows = metabolitesTable.getSelectedRowCount(); 
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
@@ -4082,8 +4117,9 @@ public class GraphicalInterface extends JFrame {
 	}
 	
 	public void selectMetabolitesColumns() {
-		metabolitesTable.setColumnSelectionAllowed(true);
-		metabolitesTable.setRowSelectionAllowed(false);
+		ListSelectionModel selectionModel = metabolitesTable.getSelectionModel();
+		selectionModel.setSelectionInterval(0, metabolitesTable.getModel().getRowCount() - 1);
+		
 		LocalConfig.getInstance().setNumberCopiedRows(metabolitesTable.getRowCount());
 		StringBuffer sbf=new StringBuffer();
 		int numcols = metabolitesTable.getSelectedColumnCount(); 
@@ -4105,6 +4141,7 @@ public class GraphicalInterface extends JFrame {
 	}
 	
 	public void metabolitesCopy() {
+		mtbColSelectionMode = false;
 		StringBuffer sbf=new StringBuffer(); 
 		// Check to ensure we have selected only a contiguous block of 
 		// cells 
@@ -4141,70 +4178,76 @@ public class GraphicalInterface extends JFrame {
 
 	public void metabolitesPaste() {
 		String trstring = getClipboardContents(GraphicalInterface.this);
-		int startRow=(metabolitesTable.getSelectedRows())[0]; 
-		int startCol=(metabolitesTable.getSelectedColumns())[0];
-		if (LocalConfig.getInstance().getNumberCopiedRows() != null && metabolitesTable.getSelectedRows().length >= LocalConfig.getInstance().getNumberCopiedRows()) {
-			if (LocalConfig.getInstance().getNumberCopiedRows() > 0) {
-				//if selected area is larger than copied area, it will fill the same cell
-				//contents repeatedly until end of selection, based on integer division
-				//with no remainder
-				int quotient = metabolitesTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
-				for (int r = 0; r < quotient; r++) {
-					try 
-					{ 
-						trstring = getClipboardContents(GraphicalInterface.this);
-						StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-						for(int i=0;st1.hasMoreTokens();i++) 
+		int startRow = (metabolitesTable.getSelectedRows())[0];
+		int startCol = (metabolitesTable.getSelectedColumns())[0];
+		if (mtbColSelectionMode == true && startRow != 0) {
+			//do not paste if column is selected and selected cell is not 
+			//in first row since it would result in an index error
+		} else {
+			if (LocalConfig.getInstance().getNumberCopiedRows() != null && metabolitesTable.getSelectedRows().length >= LocalConfig.getInstance().getNumberCopiedRows()) {
+				if (LocalConfig.getInstance().getNumberCopiedRows() > 0) {
+					//if selected area is larger than copied area, it will fill the same cell
+					//contents repeatedly until end of selection, based on integer division
+					//with no remainder
+					int quotient = metabolitesTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
+					for (int r = 0; r < quotient; r++) {
+						try 
 						{ 
-							String rowstring=st1.nextToken(); 
-							StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-							for(int j=0;st2.hasMoreTokens();j++) 
+							trstring = getClipboardContents(GraphicalInterface.this);
+							StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
+							for(int i=0;st1.hasMoreTokens();i++) 
 							{ 
-								String value=(String)st2.nextToken(); 
-								int viewRow = 0;
-								if (startRow+i< metabolitesTable.getRowCount()  && 
-										startCol+j< metabolitesTable.getColumnCount()) 
-									viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
-								metabolitesTable.setValueAt(value,startRow+i,startCol+j);
-								updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+								String rowstring=st1.nextToken(); 
+								StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
+								for(int j=0;st2.hasMoreTokens();j++) 
+								{ 
+									String value=(String)st2.nextToken(); 
+									int viewRow = 0;
+									if (startRow+i< metabolitesTable.getRowCount()  && 
+											startCol+j< metabolitesTable.getColumnCount()) 
+										viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
+									metabolitesTable.setValueAt(value,startRow+i,startCol+j);
+									updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+								} 
 							} 
 						} 
-					} 
-					catch(Exception ex){
-						//ex.printStackTrace();
-						System.out.println("Paste error");
-					} 
-					startRow += LocalConfig.getInstance().getNumberCopiedRows();
+						catch(Exception ex){
+							//ex.printStackTrace();
+							System.out.println("Paste error");
+						} 
+						startRow += LocalConfig.getInstance().getNumberCopiedRows();
+					}
 				}
-			}
-			//if selected area is smaller than copied area, fills in copied area
-			//from first selected cell as upper left
-		} else {
-			try 
-			{ 
-				trstring = getClipboardContents(GraphicalInterface.this);
-				StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-				for(int i=0;st1.hasMoreTokens();i++) 
+				//if selected area is smaller than copied area, fills in copied area
+				//from first selected cell as upper left
+			} else {
+				try 
 				{ 
-					String rowstring=st1.nextToken(); 
-					StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-					for(int j=0;st2.hasMoreTokens();j++) 
+					trstring = getClipboardContents(GraphicalInterface.this);
+					StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
+					for(int i=0;st1.hasMoreTokens();i++) 
 					{ 
-						String value=(String)st2.nextToken(); 
-						int viewRow = 0;
-						if (startRow+i< metabolitesTable.getRowCount()  && 
-								startCol+j< metabolitesTable.getColumnCount()) 
-							viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
-						metabolitesTable.setValueAt(value,startRow+i,startCol+j);
-						updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						String rowstring=st1.nextToken(); 
+						StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
+						for(int j=0;st2.hasMoreTokens();j++) 
+						{ 
+							String value=(String)st2.nextToken(); 
+							int viewRow = 0;
+							if (startRow+i< metabolitesTable.getRowCount()  && 
+									startCol+j< metabolitesTable.getColumnCount()) 
+								viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
+							metabolitesTable.setValueAt(value,startRow+i,startCol+j);
+							updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						} 
 					} 
 				} 
-			} 
-			catch(Exception ex){
-				//ex.printStackTrace();
-				System.out.println("Paste error");
-			} 
-		}
+				catch(Exception ex){
+					//ex.printStackTrace();
+					System.out.println("Paste error");
+				} 
+			}
+		}		
+		//mtbColSelectionMode = false;
 	}
 
 	public void metabolitesClear() {
