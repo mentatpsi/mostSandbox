@@ -3831,7 +3831,7 @@ public class GraphicalInterface extends JFrame {
 	}
 
 	public void reactionsPaste() {
-		String trstring = getClipboardContents(GraphicalInterface.this);
+		String copiedString = getClipboardContents(GraphicalInterface.this);
 		int startRow = (reactionsTable.getSelectedRows())[0];
 		int startCol=(reactionsTable.getSelectedColumns())[0];
 		if (rxnColSelectionMode == true && startRow != 0) {
@@ -3847,23 +3847,33 @@ public class GraphicalInterface extends JFrame {
 					for (int r = 0; r < quotient; r++) {
 						try 
 						{ 
-							trstring = getClipboardContents(GraphicalInterface.this);
-							StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-							for(int i=0;st1.hasMoreTokens();i++) 
-							{ 
-								String rowstring=st1.nextToken(); 
-								StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-								for(int j=0;st2.hasMoreTokens();j++) 
-								{ 
-									String value=(String)st2.nextToken(); 
+							copiedString = getClipboardContents(GraphicalInterface.this);
+							String[] s1 = copiedString.split("\n");
+							for (int c = 0; c < s1.length; c++) {
+								String[] rowstring = s1[c].split("\t");
+								for (int v = 0; v < rowstring.length; v++) {
+									System.out.println("s" + rowstring[v] + "e");
+									System.out.println(rowstring[v].length());
 									int viewRow = 0;
-									if (startRow+i< reactionsTable.getRowCount()  && 
-											startCol+j< reactionsTable.getColumnCount()) 
-										viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+i);
-									reactionsTable.setValueAt(value,startRow+i,startCol+j);
-									updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-								} 
-							} 
+									if (startRow+c< reactionsTable.getRowCount()  && 
+											startCol+v< reactionsTable.getColumnCount()) 
+										viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+c);
+									if (startRow+c< reactionsTable.getRowCount()  && 
+											startCol+v< reactionsTable.getColumnCount()) 
+										viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+c);
+									if (rowstring[v].length() == 0 && rowstring[v].compareTo(" ") == 0) {
+										System.out.println("s" + rowstring[v] + "e");
+		                            	reactionsTable.setValueAt(" ",startRow+c,startCol+v);
+		                            	updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+		                            } else {              	
+		                            	System.out.println("long");
+		                            	reactionsTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+		                            	updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+		                            }		
+									//reactionsTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+									//updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+								}
+							}
 						} 
 						catch(Exception ex){
 							//ex.printStackTrace();
@@ -3877,23 +3887,29 @@ public class GraphicalInterface extends JFrame {
 			} else {
 				try 
 				{ 
-					trstring = getClipboardContents(GraphicalInterface.this);
-					StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-					for(int i=0;st1.hasMoreTokens();i++) 
-					{ 
-						String rowstring=st1.nextToken(); 
-						StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-						for(int j=0;st2.hasMoreTokens();j++) 
-						{ 
-							String value=(String)st2.nextToken(); 
+					copiedString = getClipboardContents(GraphicalInterface.this);
+					String[] s1 = copiedString.split("\n");
+					for (int c = 0; c < s1.length; c++) {
+						String[] rowstring = s1[c].split("\t");
+						for (int v = 0; v < rowstring.length; v++) {
+							System.out.println("s" + rowstring[v] + "e");
 							int viewRow = 0;
-							if (startRow+i< reactionsTable.getRowCount()  && 
-									startCol+j< reactionsTable.getColumnCount()) 
-								viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+i);
-							reactionsTable.setValueAt(value,startRow+i,startCol+j);
-							updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-						} 
-					} 
+							if (startRow+c< reactionsTable.getRowCount()  && 
+									startCol+v< reactionsTable.getColumnCount()) 
+								viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+c);
+							if (rowstring[v].length() == 0 && rowstring[v].compareTo(" ") == 0) {
+								System.out.println("s" + rowstring[v] + "e");
+                            	reactionsTable.setValueAt(" ",startRow+c,startCol+v);
+                            	updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+                            } else {              	
+                            	System.out.println("long");
+                            	reactionsTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+                            	updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+                            }		
+							//reactionsTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+							//updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						}
+					}
 				} 
 				catch(Exception ex){
 					//ex.printStackTrace();
@@ -3957,20 +3973,18 @@ public class GraphicalInterface extends JFrame {
 				if (j<numcols-1) sbf.append("\t"); 
 			} 			
 		setClipboardContents(sbf.toString());
-		String trstring = getClipboardContents(GraphicalInterface.this);
+		String copiedString = getClipboardContents(GraphicalInterface.this);
 		int startCol=(reactionsTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
 			try 
 			{ 
-					StringTokenizer st = new StringTokenizer(trstring,"\t"); 
-					for(int j=0;st.hasMoreTokens();j++) 
-					{ 
-						String value=(String)st.nextToken();
-						int	viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(r);
-						reactionsTable.setValueAt(value,r,startCol+j);
-						updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					} 
-				
+				String[] rowstring = copiedString.split("\t");
+				for (int v = 0; v < rowstring.length; v++) {
+					System.out.println("s" + rowstring[v] + "e");
+					int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(r);
+					reactionsTable.setValueAt(rowstring[v], r, startCol+v);
+					updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+				}
 			} 
 			catch(Exception ex){
 				//ex.printStackTrace();
