@@ -40,6 +40,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -2371,8 +2372,7 @@ public class GraphicalInterface extends JFrame {
 	private JPopupMenu createReactionsHeaderContextMenu(final int columnIndex) {
 		JPopupMenu reactionsHeaderContextMenu = new JPopupMenu();
 		
-		JMenuItem deleteColumnMenu = new JMenuItem();
-		deleteColumnMenu.setText("Delete Column");
+		JMenuItem deleteColumnMenu = new JMenuItem("Delete Column");
 		//core columns cannot be deleted
 		if (columnIndex < 10) {
 			deleteColumnMenu.setEnabled(false);
@@ -2415,8 +2415,7 @@ public class GraphicalInterface extends JFrame {
 	private JPopupMenu createMetabolitesHeaderContextMenu(final int columnIndex) {
 		JPopupMenu metabolitesHeaderContextMenu = new JPopupMenu();
 		
-		JMenuItem deleteColumnMenu = new JMenuItem();
-		deleteColumnMenu.setText("Delete Column");
+		JMenuItem deleteColumnMenu = new JMenuItem("Delete Column");
 		//core columns cannot be deleted
 		if (columnIndex < 6) {
 			deleteColumnMenu.setEnabled(false);
@@ -2579,8 +2578,7 @@ public class GraphicalInterface extends JFrame {
 		}
 		reactionsContextMenu.add(pasteMenu);
 		
-		JMenuItem fillUpMenu = new JMenuItem();
-		fillUpMenu.setText("Fill Up");
+		JMenuItem fillUpMenu = new JMenuItem("Fill Up");
 		//if fill is done in the sorted row it will sort after fill  
 		if (getReactionsSortColumnIndex() == reactionsTable.getSelectedColumn()) {
 			fillUpMenu.setEnabled(false);
@@ -2593,8 +2591,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		reactionsContextMenu.add(fillUpMenu);
 		
-		JMenuItem fillDownMenu = new JMenuItem();
-		fillDownMenu.setText("Fill Down");
+		JMenuItem fillDownMenu = new JMenuItem("Fill Down");
 		//if fill is done in the sorted row it will sort after fill  
 		if (getReactionsSortColumnIndex() == reactionsTable.getSelectedColumn()) {
 			fillDownMenu.setEnabled(false);
@@ -2607,8 +2604,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		reactionsContextMenu.add(fillDownMenu);
 
-		JMenuItem clearMenu = new JMenuItem();
-		clearMenu.setText("Clear Contents");
+		JMenuItem clearMenu = new JMenuItem("Clear Contents");
 		clearMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_E, ActionEvent.CTRL_MASK));
 		clearMenu.addActionListener(new ActionListener() {
@@ -2620,8 +2616,7 @@ public class GraphicalInterface extends JFrame {
 		
 		reactionsContextMenu.addSeparator();
 
-		JMenuItem editMenu = new JMenuItem();
-		editMenu.setText("Edit");   	   
+		JMenuItem editMenu = new JMenuItem("Edit");   
 		editMenu.addActionListener(new ActionListener() {
 			@SuppressWarnings("deprecation")
 			public void actionPerformed(ActionEvent e) {
@@ -2651,8 +2646,7 @@ public class GraphicalInterface extends JFrame {
 		
 		reactionsContextMenu.addSeparator();
 		
-		JMenuItem deleteRowMenu = new JMenuItem();
-		deleteRowMenu.setText("Delete Row(s)");
+		JMenuItem deleteRowMenu = new JMenuItem("Delete Row(s)");
 		deleteRowMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				reactionsDeleteRows();			
@@ -2667,13 +2661,13 @@ public class GraphicalInterface extends JFrame {
 			final int columnIndex) {
 		JPopupMenu contextMenu = new JPopupMenu();
 
-		JMenuItem selectRowMenu = new JMenuItem();
-		selectRowMenu.setText("Select Row(s)");
+		JMenuItem selectRowMenu = new JMenuItem("Select Row(s)");
 		if (columnIndex > 1) {
 			selectRowMenu.setEnabled(false);
 		}
 		selectRowMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				includeRxnColumnNames = false;
 				selectReactionsRows();
 			}
 		});
@@ -2739,8 +2733,7 @@ public class GraphicalInterface extends JFrame {
 		
 		contextMenu.addSeparator();
 		
-		JMenuItem copyMenu = new JMenuItem();
-		copyMenu.setText("Copy");
+		JMenuItem copyMenu = new JMenuItem("Copy");
 		copyMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_C, ActionEvent.CTRL_MASK));
 		copyMenu.addActionListener(new ActionListener() {
@@ -2768,8 +2761,7 @@ public class GraphicalInterface extends JFrame {
 		}
 		contextMenu.add(pasteMenu);
 
-		JMenuItem fillUpMenu = new JMenuItem();
-		fillUpMenu.setText("Fill Up");
+		JMenuItem fillUpMenu = new JMenuItem("Fill Up");
 		//if fill is done in the sorted row it will sort after fill  
 		if (getReactionsSortColumnIndex() == reactionsTable.getSelectedColumn()) {
 			fillUpMenu.setEnabled(false);
@@ -2782,8 +2774,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(fillUpMenu);
 		
-		JMenuItem fillDownMenu = new JMenuItem();
-		fillDownMenu.setText("Fill Down");
+		JMenuItem fillDownMenu = new JMenuItem("Fill Down");
 		//if fill is done in the sorted row it will sort after fill  
 		if (getReactionsSortColumnIndex() == reactionsTable.getSelectedColumn()) {
 			fillDownMenu.setEnabled(false);
@@ -2796,8 +2787,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(fillDownMenu);
 		
-		JMenuItem clearMenu = new JMenuItem();
-		clearMenu.setText("Clear Contents");
+		JMenuItem clearMenu = new JMenuItem("Clear Contents");
 		clearMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_E, ActionEvent.CTRL_MASK));
 		clearMenu.addActionListener(new ActionListener() {
@@ -2809,8 +2799,7 @@ public class GraphicalInterface extends JFrame {
 		
 		contextMenu.addSeparator();
 		
-		JMenuItem deleteRowMenu = new JMenuItem();
-		deleteRowMenu.setText("Delete Row(s)");
+		JMenuItem deleteRowMenu = new JMenuItem("Delete Row(s)");
 		deleteRowMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
 				reactionsDeleteRows();		
@@ -2818,8 +2807,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(deleteRowMenu);	
 		
-		JMenuItem deleteColumnMenu = new JMenuItem();
-		deleteColumnMenu.setText("Delete Columns(s)");
+		JMenuItem deleteColumnMenu = new JMenuItem("Delete Columns(s)");
 		//core columns cannot be deleted
 		if (columnIndex < 10) {
 			deleteColumnMenu.setEnabled(false);
@@ -2890,13 +2878,13 @@ public class GraphicalInterface extends JFrame {
 			final int columnIndex) {
 		JPopupMenu contextMenu = new JPopupMenu();
 
-		JMenuItem selectRowMenu = new JMenuItem();
-		selectRowMenu.setText("Select Row(s)");
+		JMenuItem selectRowMenu = new JMenuItem("Select Row(s)");
 		if (columnIndex > 1) {
 			selectRowMenu.setEnabled(false);
 		}
 		selectRowMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				includeMtbColumnNames = false;
 				selectMetabolitesRows();
 			}
 		});
@@ -2962,8 +2950,7 @@ public class GraphicalInterface extends JFrame {
 		
 		contextMenu.addSeparator();
 		
-		JMenuItem copyMenu = new JMenuItem();
-		copyMenu.setText("Copy");
+		JMenuItem copyMenu = new JMenuItem("Copy");
 		copyMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_C, ActionEvent.CTRL_MASK));
 		copyMenu.addActionListener(new ActionListener() {
@@ -2994,9 +2981,8 @@ public class GraphicalInterface extends JFrame {
 		
 		contextMenu.addSeparator();
 
-		//final JCheckBoxMenuItem participatingReactionsMenu = new JCheckBoxMenuItem();
-		final JMenuItem participatingReactionsMenu = new JMenuItem();
-		participatingReactionsMenu.setText("Highlight Participating Reactions");
+		//TODO: replace these two menu items below with radio buttons
+		final JMenuItem participatingReactionsMenu = new JMenuItem("Highlight Participating Reactions");
 		String abbreviation = (String) metabolitesTable.getModel().getValueAt(rowIndex,
 				columnIndex);
 		if (abbreviation == null) {
@@ -3012,8 +2998,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(participatingReactionsMenu);
 
-		final JMenuItem unhighlightParticipatingReactionsMenu = new JMenuItem();
-		unhighlightParticipatingReactionsMenu.setText("Unhighlight Participating Reactions");
+		final JMenuItem unhighlightParticipatingReactionsMenu = new JMenuItem("Unhighlight Participating Reactions");
 		if (abbreviation == null || getParticipatingMetabolite() == null || getParticipatingMetabolite() == "   ") {
 			unhighlightParticipatingReactionsMenu.setEnabled(false);
 		}
@@ -3040,8 +3025,7 @@ public class GraphicalInterface extends JFrame {
 
 		contextMenu.addSeparator();
 
-		JMenuItem deleteRowMenu = new JMenuItem();
-		deleteRowMenu.setText("Delete Row(s)");
+		JMenuItem deleteRowMenu = new JMenuItem("Delete Row(s)");
 
 		if (GraphicalInterface.metabolitesTable.getSelectedRow() > -1) {
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(GraphicalInterface.metabolitesTable.getSelectedRow());
@@ -3060,7 +3044,6 @@ public class GraphicalInterface extends JFrame {
 		} else {
 			deleteRowMenu.setEnabled(false);
 		} 
-
 		contextMenu.add(deleteRowMenu);
 
 		return contextMenu;
@@ -3070,15 +3053,13 @@ public class GraphicalInterface extends JFrame {
 			final int columnIndex) {
 		JPopupMenu contextMenu = new JPopupMenu();
 
-		JMenuItem selectRowMenu = new JMenuItem();
-		selectRowMenu.setText("Select Row(s)");
+		JMenuItem selectRowMenu = new JMenuItem("Select Row(s)");
 		if (columnIndex > 1) {
 			selectRowMenu.setEnabled(false);
 		}
-		//selectRowMenu.setAccelerator(KeyStroke.getKeyStroke(
-		        //KeyEvent.VK_A, ActionEvent.CTRL_MASK));
 		selectRowMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				includeMtbColumnNames = false;
 				selectMetabolitesRows();
 			}
 		});
@@ -3135,8 +3116,7 @@ public class GraphicalInterface extends JFrame {
 				System.out.println(includeMtbColumnNames);
 				selectMetabolitesRows();
 			}
-		});
-        
+		});        
         selectAllMenu.add(inclColNamesItem);
         selectAllMenu.add(selectCellsOnly);
 
@@ -3144,8 +3124,7 @@ public class GraphicalInterface extends JFrame {
 		
 		contextMenu.addSeparator();
 		
-		JMenuItem copyMenu = new JMenuItem();
-		copyMenu.setText("Copy");
+		JMenuItem copyMenu = new JMenuItem("Copy");
 		copyMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_C, ActionEvent.CTRL_MASK));
 		copyMenu.addActionListener(new ActionListener() {
@@ -3174,8 +3153,7 @@ public class GraphicalInterface extends JFrame {
 		}
 		contextMenu.add(pasteMenu);
 
-		JMenuItem fillUpMenu = new JMenuItem();
-		fillUpMenu.setText("Fill Up");
+		JMenuItem fillUpMenu = new JMenuItem("Fill Up");
 		//if fill is done in the sorted row it will sort after fill  
 		if (getMetabolitesSortColumnIndex() == metabolitesTable.getSelectedColumn()) {
 			fillUpMenu.setEnabled(false);
@@ -3188,8 +3166,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(fillUpMenu);
 		
-		JMenuItem fillDownMenu = new JMenuItem();
-		fillDownMenu.setText("Fill Down");
+		JMenuItem fillDownMenu = new JMenuItem("Fill Down");
 		if (getMetabolitesSortColumnIndex() == metabolitesTable.getSelectedColumn()) {
 			fillDownMenu.setEnabled(false);
 		}
@@ -3201,8 +3178,7 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(fillDownMenu);
 		
-		JMenuItem clearMenu = new JMenuItem();
-		clearMenu.setText("Clear Contents");
+		JMenuItem clearMenu = new JMenuItem("Clear Contents");
 		clearMenu.setAccelerator(KeyStroke.getKeyStroke(
 		        KeyEvent.VK_E, ActionEvent.CTRL_MASK));
 		clearMenu.addActionListener(new ActionListener() {
@@ -3214,9 +3190,7 @@ public class GraphicalInterface extends JFrame {
 		
 		contextMenu.addSeparator();
 
-
-		JMenuItem deleteRowMenu = new JMenuItem();
-		deleteRowMenu.setText("Delete Row(s)");
+		JMenuItem deleteRowMenu = new JMenuItem("Delete Row(s)");
 
 		if (GraphicalInterface.metabolitesTable.getSelectedRow() > -1) {
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(GraphicalInterface.metabolitesTable.getSelectedRow());
@@ -3234,10 +3208,10 @@ public class GraphicalInterface extends JFrame {
 			}
 		} else {
 			deleteRowMenu.setEnabled(false);
-		} 
+		} 		
+		contextMenu.add(deleteRowMenu);
 		
-		JMenuItem deleteColumnMenu = new JMenuItem();
-		deleteColumnMenu.setText("Delete Column(s)");
+		JMenuItem deleteColumnMenu = new JMenuItem("Delete Column(s)");
 		//core columns cannot be deleted
 		if (columnIndex < 6) {
 			deleteColumnMenu.setEnabled(false);
@@ -3250,11 +3224,9 @@ public class GraphicalInterface extends JFrame {
 					metabolitesTable.getColumnExt(i).setVisible(false);
 				}		
 			}
-		});
+		});		
 		contextMenu.add(deleteColumnMenu);
 		
-		contextMenu.add(deleteRowMenu);
-
 		return contextMenu;
 	}  
 
@@ -3486,11 +3458,6 @@ public class GraphicalInterface extends JFrame {
 		if (getPopout() != null) {
 			popout.dispose();
 		}
-		/*
-		if (getPopout() != null) {
-			getPopout().clear();
-		}
-		*/
 		showPrompt = true;
 		highlightUnusedMetabolites = false;
 		highlightUnusedMetabolitesItem.setState(false);
@@ -3759,13 +3726,14 @@ public class GraphicalInterface extends JFrame {
 		ReactionsMetaColumnManager reactionsMetaColumnManager = new ReactionsMetaColumnManager();
 		int metaColumnCount = reactionsMetaColumnManager.getMetaColumnCount(LocalConfig.getInstance().getLoadedDatabase());	
 		
-		reactionsTable.setColumnSelectionAllowed(false);
-		reactionsTable.setRowSelectionAllowed(true);
 		StringBuffer sbf=new StringBuffer();
 		int numrows = reactionsTable.getSelectedRowCount(); 
 		System.out.println(numrows);
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
 		int[] rowsselected=reactionsTable.getSelectedRows();  
+		reactionsTable.changeSelection(rowsselected[0], 0, false, false);
+		reactionsTable.changeSelection(rowsselected[numrows - 1], reactionsTable.getColumnCount(), false, true);
+		reactionsTable.scrollColumnToVisible(1);
 		
 		if (selectAllRxn == true && includeRxnColumnNames == true) {
 			//add column names to clipboard
@@ -3802,9 +3770,9 @@ public class GraphicalInterface extends JFrame {
 	}
 	
 	public void selectReactionsColumns() {
-		ListSelectionModel selectionModel = 
-			reactionsTable.getSelectionModel();
-			selectionModel.setSelectionInterval(0, reactionsTable.getModel().getRowCount() - 1);
+		//sets columns as selected
+		ListSelectionModel selectionModel = reactionsTable.getSelectionModel();
+		selectionModel.setSelectionInterval(0, reactionsTable.getModel().getRowCount() - 1);
 		
 		StringBuffer sbf=new StringBuffer();
 		int numcols = reactionsTable.getSelectedColumnCount(); 
@@ -3933,10 +3901,6 @@ public class GraphicalInterface extends JFrame {
 				} 
 			}
 		}
-		
-		//rxnColSelectionMode = false;
-		//reactionsTable.setColumnSelectionAllowed(true);
-		//reactionsTable.setRowSelectionAllowed(true);
 	}
 
 	public void reactionsClear() {
@@ -4081,6 +4045,10 @@ public class GraphicalInterface extends JFrame {
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
 		int[] rowsselected=metabolitesTable.getSelectedRows();  
 		
+		metabolitesTable.changeSelection(rowsselected[0], 0, false, false);
+		metabolitesTable.changeSelection(rowsselected[numrows - 1], metabolitesTable.getColumnCount(), false, true);
+		metabolitesTable.scrollColumnToVisible(1);
+		
 		if (selectAllMtb == true && includeMtbColumnNames == true) {
 			//add column names to clipboard
 			for (int c = 1; c < GraphicalInterfaceConstants.METABOLITES_COLUMN_NAMES.length; c++) {
@@ -4117,6 +4085,7 @@ public class GraphicalInterface extends JFrame {
 	}
 	
 	public void selectMetabolitesColumns() {
+		//sets columns as selected
 		ListSelectionModel selectionModel = metabolitesTable.getSelectionModel();
 		selectionModel.setSelectionInterval(0, metabolitesTable.getModel().getRowCount() - 1);
 		
@@ -4164,6 +4133,7 @@ public class GraphicalInterface extends JFrame {
 		{ 
 			for (int j=0;j<numcols;j++) 
 			{ 
+				//System.out.println("s" + metabolitesTable.getValueAt(rowsselected[i],colsselected[j]).toString() + "e");
 				if (metabolitesTable.getValueAt(rowsselected[i],colsselected[j]) != null) {
 					sbf.append(metabolitesTable.getValueAt(rowsselected[i],colsselected[j]));
 				} else {
@@ -4174,10 +4144,11 @@ public class GraphicalInterface extends JFrame {
 			sbf.append("\n"); 
 		}  
 		setClipboardContents(sbf.toString());
+		System.out.println(sbf.toString());
 	}
 
 	public void metabolitesPaste() {
-		String trstring = getClipboardContents(GraphicalInterface.this);
+		String copiedString = getClipboardContents(GraphicalInterface.this);
 		int startRow = (metabolitesTable.getSelectedRows())[0];
 		int startCol = (metabolitesTable.getSelectedColumns())[0];
 		if (mtbColSelectionMode == true && startRow != 0) {
@@ -4193,23 +4164,33 @@ public class GraphicalInterface extends JFrame {
 					for (int r = 0; r < quotient; r++) {
 						try 
 						{ 
-							trstring = getClipboardContents(GraphicalInterface.this);
-							StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-							for(int i=0;st1.hasMoreTokens();i++) 
-							{ 
-								String rowstring=st1.nextToken(); 
-								StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-								for(int j=0;st2.hasMoreTokens();j++) 
-								{ 
-									String value=(String)st2.nextToken(); 
+							copiedString = getClipboardContents(GraphicalInterface.this);
+							String[] s1 = copiedString.split("\n");
+							for (int c = 0; c < s1.length; c++) {
+								String[] rowstring = s1[c].split("\t");
+								for (int v = 0; v < rowstring.length; v++) {
+									System.out.println("s" + rowstring[v] + "e");
+									System.out.println(rowstring[v].length());
 									int viewRow = 0;
-									if (startRow+i< metabolitesTable.getRowCount()  && 
-											startCol+j< metabolitesTable.getColumnCount()) 
-										viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
-									metabolitesTable.setValueAt(value,startRow+i,startCol+j);
-									updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-								} 
-							} 
+									if (startRow+c< metabolitesTable.getRowCount()  && 
+											startCol+v< metabolitesTable.getColumnCount()) 
+										viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+c);
+									if (startRow+c< metabolitesTable.getRowCount()  && 
+											startCol+v< metabolitesTable.getColumnCount()) 
+										viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+c);
+									if (rowstring[v].length() == 0 && rowstring[v].compareTo(" ") == 0) {
+										System.out.println("s" + rowstring[v] + "e");
+		                            	metabolitesTable.setValueAt(" ",startRow+c,startCol+v);
+		                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+		                            } else {              	
+		                            	System.out.println("long");
+		                            	metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+		                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+		                            }		
+									//metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+									//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+								}
+							}
 						} 
 						catch(Exception ex){
 							//ex.printStackTrace();
@@ -4223,23 +4204,29 @@ public class GraphicalInterface extends JFrame {
 			} else {
 				try 
 				{ 
-					trstring = getClipboardContents(GraphicalInterface.this);
-					StringTokenizer st1=new StringTokenizer(trstring,"\n"); 
-					for(int i=0;st1.hasMoreTokens();i++) 
-					{ 
-						String rowstring=st1.nextToken(); 
-						StringTokenizer st2=new StringTokenizer(rowstring,"\t"); 
-						for(int j=0;st2.hasMoreTokens();j++) 
-						{ 
-							String value=(String)st2.nextToken(); 
+					copiedString = getClipboardContents(GraphicalInterface.this);
+					String[] s1 = copiedString.split("\n");
+					for (int c = 0; c < s1.length; c++) {
+						String[] rowstring = s1[c].split("\t");
+						for (int v = 0; v < rowstring.length; v++) {
+							System.out.println("s" + rowstring[v] + "e");
 							int viewRow = 0;
-							if (startRow+i< metabolitesTable.getRowCount()  && 
-									startCol+j< metabolitesTable.getColumnCount()) 
-								viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
-							metabolitesTable.setValueAt(value,startRow+i,startCol+j);
-							updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-						} 
-					} 
+							if (startRow+c< metabolitesTable.getRowCount()  && 
+									startCol+v< metabolitesTable.getColumnCount()) 
+								viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+c);
+							if (rowstring[v].length() == 0 && rowstring[v].compareTo(" ") == 0) {
+								System.out.println("s" + rowstring[v] + "e");
+                            	metabolitesTable.setValueAt(" ",startRow+c,startCol+v);
+                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+                            } else {              	
+                            	System.out.println("long");
+                            	metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+                            }		
+							//metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
+							//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						}
+					}
 				} 
 				catch(Exception ex){
 					//ex.printStackTrace();
@@ -4247,7 +4234,6 @@ public class GraphicalInterface extends JFrame {
 				} 
 			}
 		}		
-		//mtbColSelectionMode = false;
 	}
 
 	public void metabolitesClear() {
@@ -4306,20 +4292,18 @@ public class GraphicalInterface extends JFrame {
 				if (j<numcols-1) sbf.append("\t"); 
 			} 			
 		setClipboardContents(sbf.toString());
-		String trstring = getClipboardContents(GraphicalInterface.this);
+		String copiedString = getClipboardContents(GraphicalInterface.this);
 		int startCol=(metabolitesTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
 			try 
 			{ 
-					StringTokenizer st = new StringTokenizer(trstring,"\t"); 
-					for(int j=0;st.hasMoreTokens();j++) 
-					{ 
-						String value=(String)st.nextToken();
-						int	viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
-						metabolitesTable.setValueAt(value,r,startCol+j);
-						updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					} 
-				
+				String[] rowstring = copiedString.split("\t");
+				for (int v = 0; v < rowstring.length; v++) {
+					System.out.println("s" + rowstring[v] + "e");
+					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
+					metabolitesTable.setValueAt(rowstring[v], r, startCol+v);
+					updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+				}
 			} 
 			catch(Exception ex){
 				//ex.printStackTrace();
@@ -4327,7 +4311,6 @@ public class GraphicalInterface extends JFrame {
 			}
 		}
 	}
-
 
 	public void metaboliteDeleteRows() {
 		MetaboliteFactory mFactory = new MetaboliteFactory();
@@ -4364,7 +4347,7 @@ public class GraphicalInterface extends JFrame {
 	/**************************************************************************/
 	//end metabolitesTable context menu methods
 	/**************************************************************************/
-
+	
 	public static void main(String[] args) throws Exception {
 		Class.forName("org.sqlite.JDBC");       
 		DatabaseCreator databaseCreator = new DatabaseCreator();
