@@ -266,6 +266,16 @@ public class LocalConfig {
 	
     private static Integer numberCopiedRows;
 	
+	public void setNumberCopiedColumns(Integer numberCopiedColumns) {
+		this.numberCopiedColumns = numberCopiedColumns;
+	}
+	
+	public Integer getNumberCopiedColumns() {
+		return numberCopiedColumns;
+	}
+	
+	private static Integer numberCopiedColumns;
+	
 	public void setNumberCopiedRows(Integer numberCopiedRows) {
 		this.numberCopiedRows = numberCopiedRows;
 	}

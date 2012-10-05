@@ -3730,6 +3730,8 @@ public class GraphicalInterface extends JFrame {
 		int numrows = reactionsTable.getSelectedRowCount(); 
 		System.out.println(numrows);
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
+		//for row selection all columns are selected
+		LocalConfig.getInstance().setNumberCopiedColumns(reactionsTable.getColumnCount());
 		int[] rowsselected=reactionsTable.getSelectedRows();  
 		reactionsTable.changeSelection(rowsselected[0], 0, false, false);
 		reactionsTable.changeSelection(rowsselected[numrows - 1], reactionsTable.getColumnCount(), false, true);
@@ -3776,6 +3778,8 @@ public class GraphicalInterface extends JFrame {
 		
 		StringBuffer sbf=new StringBuffer();
 		int numcols = reactionsTable.getSelectedColumnCount(); 
+		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
+		//for column selection all rows are selected
 		LocalConfig.getInstance().setNumberCopiedRows(reactionsTable.getRowCount());
 		int[] colsselected=reactionsTable.getSelectedColumns();  
 		for (int i = 0; i < reactionsTable.getRowCount(); i++) {
@@ -3802,6 +3806,7 @@ public class GraphicalInterface extends JFrame {
 		int numcols=reactionsTable.getSelectedColumnCount(); 
 		int numrows=reactionsTable.getSelectedRowCount(); 
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
+		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
 		int[] rowsselected=reactionsTable.getSelectedRows(); 
 		int[] colsselected=reactionsTable.getSelectedColumns(); 
 		if (!((numrows-1==rowsselected[rowsselected.length-1]-rowsselected[0] && 
@@ -3953,6 +3958,7 @@ public class GraphicalInterface extends JFrame {
 		// Check to ensure we have selected only a contiguous block of 
 		// cells 
 		int numcols=reactionsTable.getSelectedColumnCount(); 
+		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
 		int row=reactionsTable.getSelectedRow(); 
 		int[] colsselected=reactionsTable.getSelectedColumns(); 
 		if (!(numcols-1==colsselected[colsselected.length-1]-colsselected[0] && 
@@ -4057,6 +4063,8 @@ public class GraphicalInterface extends JFrame {
 		StringBuffer sbf=new StringBuffer();
 		int numrows = metabolitesTable.getSelectedRowCount(); 
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
+		//for row selection all columns are selected except id column and used column (both hidden)
+		LocalConfig.getInstance().setNumberCopiedColumns(metabolitesTable.getColumnCount() - 2);
 		int[] rowsselected=metabolitesTable.getSelectedRows();  
 		
 		metabolitesTable.changeSelection(rowsselected[0], 0, false, false);
@@ -4095,7 +4103,7 @@ public class GraphicalInterface extends JFrame {
 			sbf.append("\n"); 
 		}  
 		setClipboardContents(sbf.toString());
-		System.out.println(sbf.toString());
+		//System.out.println(sbf.toString());
 	}
 	
 	public void selectMetabolitesColumns() {
@@ -4105,7 +4113,10 @@ public class GraphicalInterface extends JFrame {
 		
 		LocalConfig.getInstance().setNumberCopiedRows(metabolitesTable.getRowCount());
 		StringBuffer sbf=new StringBuffer();
-		int numcols = metabolitesTable.getSelectedColumnCount(); 
+		int numcols = metabolitesTable.getSelectedColumnCount();
+		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
+		//for column selection all rows are selected
+		LocalConfig.getInstance().setNumberCopiedRows(metabolitesTable.getRowCount());
 		int[] colsselected=metabolitesTable.getSelectedColumns();  
 		for (int i = 0; i < metabolitesTable.getRowCount(); i++) {
 			for (int j = 0; j < numcols; j++) 
@@ -4120,7 +4131,7 @@ public class GraphicalInterface extends JFrame {
 			sbf.append("\n"); 
 		}  
 		setClipboardContents(sbf.toString());
-		System.out.println(sbf.toString());
+		//System.out.println(sbf.toString());
 	}
 	
 	public void metabolitesCopy() {
@@ -4131,6 +4142,7 @@ public class GraphicalInterface extends JFrame {
 		int numcols=metabolitesTable.getSelectedColumnCount(); 
 		int numrows=metabolitesTable.getSelectedRowCount(); 
 		LocalConfig.getInstance().setNumberCopiedRows(numrows);
+		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
 		int[] rowsselected=metabolitesTable.getSelectedRows(); 
 		int[] colsselected=metabolitesTable.getSelectedColumns(); 
 		if (!((numrows-1==rowsselected[rowsselected.length-1]-rowsselected[0] && 
@@ -4147,7 +4159,6 @@ public class GraphicalInterface extends JFrame {
 		{ 
 			for (int j=0;j<numcols;j++) 
 			{ 
-				//System.out.println("s" + metabolitesTable.getValueAt(rowsselected[i],colsselected[j]).toString() + "e");
 				if (metabolitesTable.getValueAt(rowsselected[i],colsselected[j]) != null) {
 					sbf.append(metabolitesTable.getValueAt(rowsselected[i],colsselected[j]));
 				} else {
@@ -4158,7 +4169,7 @@ public class GraphicalInterface extends JFrame {
 			sbf.append("\n"); 
 		}  
 		setClipboardContents(sbf.toString());
-		System.out.println(sbf.toString());
+		//System.out.println(sbf.toString());
 	}
 
 	public void metabolitesPaste() {
@@ -4175,34 +4186,23 @@ public class GraphicalInterface extends JFrame {
 					//contents repeatedly until end of selection, based on integer division
 					//with no remainder
 					int quotient = metabolitesTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
-					for (int r = 0; r < quotient; r++) {
+					for (int q = 0; q < quotient; q++) {
 						try 
 						{ 
 							copiedString = getClipboardContents(GraphicalInterface.this);
 							String[] s1 = copiedString.split("\n");
-							for (int c = 0; c < s1.length; c++) {
-								String[] rowstring = s1[c].split("\t");
-								for (int v = 0; v < rowstring.length; v++) {
-									System.out.println("s" + rowstring[v] + "e");
-									System.out.println(rowstring[v].length());
-									int viewRow = 0;
-									if (startRow+c< metabolitesTable.getRowCount()  && 
-											startCol+v< metabolitesTable.getColumnCount()) 
-										viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+c);
-									if (startRow+c< metabolitesTable.getRowCount()  && 
-											startCol+v< metabolitesTable.getColumnCount()) 
-										viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+c);
-									if (rowstring[v].length() == 0 && rowstring[v].compareTo(" ") == 0) {
-										System.out.println("s" + rowstring[v] + "e");
-		                            	metabolitesTable.setValueAt(" ",startRow+c,startCol+v);
-		                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-		                            } else {              	
-		                            	System.out.println("long");
-		                            	metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
-		                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-		                            }		
-									//metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
-									//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+							for (int r = 0; r < s1.length; r++) {
+								String[] rowstring = s1[r].split("\t");
+								int viewRow = 0;
+								for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+									viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
+									if (c < rowstring.length) {		
+										metabolitesTable.setValueAt(rowstring[c], startRow + r, startCol + c);
+										updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+									} else {
+										metabolitesTable.setValueAt(" ", startRow + r, startCol + c);
+										updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+									}
 								}
 							}
 						} 
@@ -4220,25 +4220,18 @@ public class GraphicalInterface extends JFrame {
 				{ 
 					copiedString = getClipboardContents(GraphicalInterface.this);
 					String[] s1 = copiedString.split("\n");
-					for (int c = 0; c < s1.length; c++) {
-						String[] rowstring = s1[c].split("\t");
-						for (int v = 0; v < rowstring.length; v++) {
-							System.out.println("s" + rowstring[v] + "e");
-							int viewRow = 0;
-							if (startRow+c< metabolitesTable.getRowCount()  && 
-									startCol+v< metabolitesTable.getColumnCount()) 
-								viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+c);
-							if (rowstring[v].length() == 0 && rowstring[v].compareTo(" ") == 0) {
-								System.out.println("s" + rowstring[v] + "e");
-                            	metabolitesTable.setValueAt(" ",startRow+c,startCol+v);
-                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-                            } else {              	
-                            	System.out.println("long");
-                            	metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
-                            	updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-                            }		
-							//metabolitesTable.setValueAt(rowstring[v],startRow+c,startCol+v);
-							//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+					for (int r = 0; r < s1.length; r++) {
+						String[] rowstring = s1[r].split("\t");
+						int viewRow = 0;
+						for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+							viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
+							if (c < rowstring.length) {		
+								metabolitesTable.setValueAt(rowstring[c], startRow + r, startCol + c);
+								updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+							} else {
+								metabolitesTable.setValueAt(" ", startRow + r, startCol + c);
+								updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+							}
 						}
 					}
 				} 
@@ -4286,6 +4279,7 @@ public class GraphicalInterface extends JFrame {
 		// Check to ensure we have selected only a contiguous block of 
 		// cells 
 		int numcols=metabolitesTable.getSelectedColumnCount(); 
+		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
 		int row=metabolitesTable.getSelectedRow(); 
 		int[] colsselected=metabolitesTable.getSelectedColumns(); 
 		if (!(numcols-1==colsselected[colsselected.length-1]-colsselected[0] && 
@@ -4312,11 +4306,15 @@ public class GraphicalInterface extends JFrame {
 			try 
 			{ 
 				String[] rowstring = copiedString.split("\t");
-				for (int v = 0; v < rowstring.length; v++) {
-					System.out.println("s" + rowstring[v] + "e");
+				for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
 					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
-					metabolitesTable.setValueAt(rowstring[v], r, startCol+v);
-					updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+					if (c < rowstring.length) {		
+						metabolitesTable.setValueAt(rowstring[c], r, startCol+c);
+						updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+					} else {
+						metabolitesTable.setValueAt(" ", r, startCol+c);
+						updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+					}
 				}
 			} 
 			catch(Exception ex){
