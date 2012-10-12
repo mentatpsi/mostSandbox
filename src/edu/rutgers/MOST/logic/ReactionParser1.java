@@ -212,6 +212,15 @@ public class ReactionParser1 {
 		return numSpecies;		
 	}
 	
+	public boolean isValid(String reactionEquation) {
+		if (reactionEquation != null) {
+			if (reactionEquation.contains(">") || reactionEquation.contains("=")) {
+				return true;
+			}
+		}		
+		return false;
+	}
+	
 	public static void main(String[] args) {
 		//String reactionEquation = "a+2 + 3 h+ + c => c+ + d";
 		//ArrayList reaction = reactionList(reactionEquation);

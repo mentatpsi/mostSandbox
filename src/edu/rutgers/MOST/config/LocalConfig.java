@@ -316,4 +316,17 @@ public class LocalConfig {
 		return maxMetaboliteId;
 	}
 	
+	//Map used to hold number of reactions a metabolite is used in. if a metabolites
+	//is not present in map, it is unused. Also used when adding, deleting or changing
+	//reactions to determine whether the used status of a metabolite must be changed.
+	private static Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
+	
+	public static Map<String, Object> getMetaboliteUsedMap() {
+		return metaboliteUsedMap;
+	}
+
+	public void setMetaboliteUsedMap(Map<String, Object> metaboliteUsedMap) {
+		this.metaboliteUsedMap = metaboliteUsedMap;
+	}
+	
 }

@@ -4,6 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
+import javax.swing.text.html.HTMLDocument.Iterator;
+
 import org.sbml.jsbml.*;
 
 import edu.rutgers.MOST.config.LocalConfig;
@@ -55,6 +59,16 @@ public class SBMLModelReader {
 
 	public static void setMetaboliteIdNameMap(Map<String, Object> metaboliteIdNameMap) {
 		SBMLModelReader.metaboliteIdNameMap = metaboliteIdNameMap;
+	}
+	
+    public static Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
+	
+	public static Map<String, Object> getMetaboliteUsedMap() {
+		return metaboliteUsedMap;
+	}
+
+	public static void setMetaboliteUsedMap(Map<String, Object> metaboliteUsedMap) {
+		SBMLModelReader.metaboliteUsedMap = metaboliteUsedMap;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -276,6 +290,14 @@ public class SBMLModelReader {
 								stat.executeUpdate(rrInsert);
 								String update = "update metabolites set used='true' where id=" + id + ";";
 								stat.executeUpdate(update);	
+								if (metaboliteUsedMap.containsKey(reactants.get(r).getSpecies())) {
+									int usedCount = (Integer) metaboliteUsedMap.get(reactants.get(r).getSpecies());
+									metaboliteUsedMap.put(reactants.get(r).getSpecies(), new Integer(usedCount + 1));
+									System.out.println(reactants.get(r).getSpecies() + " " + metaboliteUsedMap.get(reactants.get(r).getSpecies()));									
+								} else {
+									metaboliteUsedMap.put(reactants.get(r).getSpecies(), new Integer(1));
+									System.out.println(reactants.get(r).getSpecies() + " " + metaboliteUsedMap.get(reactants.get(r).getSpecies()));
+								}					
 							}
 							
 							String stoicStr = "";
@@ -308,12 +330,22 @@ public class SBMLModelReader {
 					if (reactions.get(j).isSetListOfProducts()) {
 						ListOf<SpeciesReference> products = reactions.get(j).getListOfProducts();
 						for (int p = 0; p < products.size(); p++) {	
-							Integer id = (Integer) metaboliteIdNameMap.get(products.get(p).getSpecies());
-							String rpInsert = "INSERT INTO reaction_products(reaction_id, stoic, metabolite_id) values (" + (j + 1) + ", " + products.get(p).getStoichiometry() + ", " + id + ");";
-							stat.executeUpdate(rpInsert);
-							String update = "update metabolites set used='true' where id=" + id + ";";
-							stat.executeUpdate(update);
-
+							if (products.get(p).isSetSpecies()) {
+								Integer id = (Integer) metaboliteIdNameMap.get(products.get(p).getSpecies());
+								String rpInsert = "INSERT INTO reaction_products(reaction_id, stoic, metabolite_id) values (" + (j + 1) + ", " + products.get(p).getStoichiometry() + ", " + id + ");";
+								stat.executeUpdate(rpInsert);
+								String update = "update metabolites set used='true' where id=" + id + ";";
+								stat.executeUpdate(update);
+								if (metaboliteUsedMap.containsKey(products.get(p).getSpecies())) {
+									int usedCount = (Integer) metaboliteUsedMap.get(products.get(p).getSpecies());
+									metaboliteUsedMap.put(products.get(p).getSpecies(), new Integer(usedCount + 1));
+									System.out.println(products.get(p).getSpecies() + " " + metaboliteUsedMap.get(products.get(p).getSpecies()));									
+								} else {
+									metaboliteUsedMap.put(products.get(p).getSpecies(), new Integer(1));
+									System.out.println(products.get(p).getSpecies() + " " + metaboliteUsedMap.get(products.get(p).getSpecies()));
+								}		
+							}
+													
 							String stoicStr = "";
 							if (products.get(p).getStoichiometry() == 1) {
 								stoicStr = "";
@@ -515,7 +547,7 @@ public class SBMLModelReader {
 						+ " meta_1, meta_2, meta_3, meta_4, meta_5, meta_6, meta_7, meta_8, "
 						+ " meta_9, meta_10, meta_11, meta_12, meta_13, meta_14, meta_15) values " 
 						+ " (" + "'" + knockout + "', '" + fluxValue + "', '" + reactionAbbreviation + "', '" + reactionName + "', '" + reactionString + "', '" + reversible + "', '" + lowerBound + "', '" + upperBound + "', '" + objective + "', '" + meta1 + "', '" + meta2 + "', '" + meta3 + "', '" + meta4 + "', '" + meta5 + "', '" + meta6 + "', '" + meta7 + "', '" + meta8 + "', '" + meta9 + "', '" + meta10 + "', '" + meta11 + "', '" + meta12 + "', '" + meta13 + "', '" + meta14 + "', '" + meta15 + "');";
-					stat.executeUpdate(reacInsert);						
+					stat.executeUpdate(reacInsert);	
 				}
 				stat.executeUpdate("COMMIT");
 			} catch (Exception e) {
@@ -524,8 +556,11 @@ public class SBMLModelReader {
 			}
 
 			conn.close();
-			LocalConfig.getInstance().setProgress(100);		
-
+			LocalConfig.getInstance().setProgress(100);	
+			LocalConfig.getInstance().setMetaboliteUsedMap(metaboliteUsedMap);
+			System.out.println(metaboliteUsedMap);
+			System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
+			
 		}catch(SQLException e){
 
 			e.printStackTrace();

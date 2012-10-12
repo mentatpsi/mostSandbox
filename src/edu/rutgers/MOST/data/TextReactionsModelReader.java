@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.JOptionPane;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -19,6 +22,16 @@ import edu.rutgers.MOST.presentation.GraphicalInterface;
 public class TextReactionsModelReader {
 	
 	boolean addMetaboliteOption = true;
+	
+	public static Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
+	
+	public static Map<String, Object> getMetaboliteUsedMap() {
+		return metaboliteUsedMap;
+	}
+
+	public static void setMetaboliteUsedMap(Map<String, Object> metaboliteUsedMap) {
+		SBMLModelReader.metaboliteUsedMap = metaboliteUsedMap;
+	}
 	
 	public ArrayList<String> columnNamesFromFile(File file, int row) {
 		ArrayList<String> columnNamesFromFile = new ArrayList();
@@ -240,138 +253,160 @@ public class TextReactionsModelReader {
 							ReactionParser1 parser = new ReactionParser1();
 							boolean valid = true;
 							
-							ArrayList<ArrayList> reactants = parser.reactionList(reactionString.trim()).get(0);
-							//reactions of the type ==> b will be size 1, assigned the value [0] in parser
-							if (reactants.get(0).size() == 1) {
-							} else {
-								for (int r = 0; r < reactants.size(); r++) {
-									if (reactants.get(r).size() == 2) {
-										String stoicStr = (String) reactants.get(r).get(0);
-										String reactant = (String) reactants.get(r).get(1);
-										String addMetab = "insert into metabolites (metabolite_abbreviation, boundary, used) values('"  + reactant + "', 'false', 'true');";	
-										
-										if (!(LocalConfig.getInstance().getMetaboliteIdNameMap().containsKey(reactant.trim()))) {
-											if (GraphicalInterface.showPrompt) {
-												Object[] options = {"Yes",
-														"Yes to All",
-												"No"};
+							if (parser.isValid(reactionString)) {
+								ArrayList<ArrayList> reactants = parser.reactionList(reactionString.trim()).get(0);
+								//reactions of the type ==> b will be size 1, assigned the value [0] in parser
+								if (reactants.get(0).size() == 1) {
+								} else {
+									for (int r = 0; r < reactants.size(); r++) {
+										if (reactants.get(r).size() == 2) {
+											String stoicStr = (String) reactants.get(r).get(0);
+											String reactant = (String) reactants.get(r).get(1);
+											String addMetab = "insert into metabolites (metabolite_abbreviation, boundary, used) values('"  + reactant + "', 'false', 'true');";	
+											
+											if (!(LocalConfig.getInstance().getMetaboliteIdNameMap().containsKey(reactant.trim()))) {
+												if (GraphicalInterface.showPrompt) {
+													Object[] options = {"Yes",
+															"Yes to All",
+													"No"};
 
-												int choice = JOptionPane.showOptionDialog(null, 
-														"The metabolite " + reactant + " does not exist. Do you wish to add it?", 
-														"Add Metabolite?", 
-														JOptionPane.YES_NO_CANCEL_OPTION, 
-														JOptionPane.QUESTION_MESSAGE, 
-														null, options, options[0]);
-												//options[0] sets "Yes" as default button
+													int choice = JOptionPane.showOptionDialog(null, 
+															"The metabolite " + reactant + " does not exist. Do you wish to add it?", 
+															"Add Metabolite?", 
+															JOptionPane.YES_NO_CANCEL_OPTION, 
+															JOptionPane.QUESTION_MESSAGE, 
+															null, options, options[0]);
+													//options[0] sets "Yes" as default button
 
-												// interpret the user's choice	  
-												if (choice == JOptionPane.YES_OPTION)
-												{
+													// interpret the user's choice	  
+													if (choice == JOptionPane.YES_OPTION)
+													{
+														stat.executeUpdate(addMetab);
+														maxMetabId += 1;
+														LocalConfig.getInstance().getMetaboliteIdNameMap().put(reactant, new Integer(maxMetabId));
+													}
+													//No option actually corresponds to "Yes to All" button
+													if (choice == JOptionPane.NO_OPTION)
+													{
+														GraphicalInterface.showPrompt = false;
+														stat.executeUpdate(addMetab);
+														maxMetabId += 1;
+														LocalConfig.getInstance().getMetaboliteIdNameMap().put(reactant, new Integer(maxMetabId));
+													}
+													//Cancel option actually corresponds to "No" button
+													if (choice == JOptionPane.CANCEL_OPTION) {
+														addMetaboliteOption = false;
+														reactionString = "";
+														valid = false;
+													}	  
+												} else {
 													stat.executeUpdate(addMetab);
 													maxMetabId += 1;
 													LocalConfig.getInstance().getMetaboliteIdNameMap().put(reactant, new Integer(maxMetabId));
-												}
-												//No option actually corresponds to "Yes to All" button
-												if (choice == JOptionPane.NO_OPTION)
-												{
-													GraphicalInterface.showPrompt = false;
-													stat.executeUpdate(addMetab);
-													maxMetabId += 1;
-													LocalConfig.getInstance().getMetaboliteIdNameMap().put(reactant, new Integer(maxMetabId));
-												}
-												//Cancel option actually corresponds to "No" button
-												if (choice == JOptionPane.CANCEL_OPTION) {
-													addMetaboliteOption = false;
-													reactionString = "";
-													valid = false;
-												}	  
+												}											
+											}										
+											
+											Integer id = (Integer) LocalConfig.getInstance().getMetaboliteIdNameMap().get(reactant);
+											
+											String insert = "INSERT INTO reaction_reactants(reaction_id, stoic, metabolite_id) values (" + (i - correction) + ", " + stoicStr + ", " + id + ");";
+											stat.executeUpdate(insert);
+											String update = "update metabolites set used='true' where id=" + id + ";";
+											stat.executeUpdate(update);
+											if (metaboliteUsedMap.containsKey(reactant)) {
+												int usedCount = (Integer) metaboliteUsedMap.get(reactant);
+												metaboliteUsedMap.put(reactant, new Integer(usedCount + 1));
+												System.out.println(reactant + " " + metaboliteUsedMap.get(reactant));									
 											} else {
-												stat.executeUpdate(addMetab);
-												maxMetabId += 1;
-												LocalConfig.getInstance().getMetaboliteIdNameMap().put(reactant, new Integer(maxMetabId));
-											}											
-										}										
-										
-										Integer id = (Integer) LocalConfig.getInstance().getMetaboliteIdNameMap().get(reactant);
-										
-										String insert = "INSERT INTO reaction_reactants(reaction_id, stoic, metabolite_id) values (" + (i - correction) + ", " + stoicStr + ", " + id + ");";
-										stat.executeUpdate(insert);
-										String update = "update metabolites set used='true' where id=" + id + ";";
-										stat.executeUpdate(update);
-										
-									} else {
-										//Invalid reaction
-										valid = false;
-										break;
-									}								
-								}
-							}
-							//reactions of the type a ==> will be size 1, assigned the value [0] in parser
-							ArrayList<ArrayList> products = parser.reactionList(reactionString.trim()).get(1);
-							if (products.get(0).size() == 1) {
-							} else {
-								for (int p = 0; p < products.size(); p++) {
-									if (products.get(p).size() == 2) {
-										String stoicStr = (String) products.get(p).get(0);
-										String product = (String) products.get(p).get(1);
-										String addMetab = "insert into metabolites (metabolite_abbreviation, boundary, used) values('"  + product + "', 'false', 'true');";
-										
-										if (!(LocalConfig.getInstance().getMetaboliteIdNameMap().containsKey(product))) {
-											if (GraphicalInterface.showPrompt) {
-												Object[] options = {"Yes",
-														"Yes to All",
-												"No"};
-
-												int choice = JOptionPane.showOptionDialog(null, 
-														"The metabolite " + product + " does not exist. Do you wish to add it?", 
-														"Add Metabolite?", 
-														JOptionPane.YES_NO_CANCEL_OPTION, 
-														JOptionPane.QUESTION_MESSAGE, 
-														null, options, options[0]);
-												//options[0] sets "Yes" as default button
-
-												// interpret the user's choice	  
-												if (choice == JOptionPane.YES_OPTION)
-												{
-													stat.executeUpdate(addMetab);
-													maxMetabId += 1;
-													LocalConfig.getInstance().getMetaboliteIdNameMap().put(product, new Integer(maxMetabId));
-												}
-												//No option actually corresponds to "Yes to All" button
-												if (choice == JOptionPane.NO_OPTION)
-												{
-													GraphicalInterface.showPrompt = false;
-													stat.executeUpdate(addMetab);
-													maxMetabId += 1;
-													LocalConfig.getInstance().getMetaboliteIdNameMap().put(product, new Integer(maxMetabId));
-												}
-												//Cancel option actually corresponds to "No" button
-												if (choice == JOptionPane.CANCEL_OPTION) {
-													addMetaboliteOption = false;
-													reactionString = "";
-													valid = false;
-												}	  
-											} else {
-												stat.executeUpdate(addMetab);
-												maxMetabId += 1;
-												LocalConfig.getInstance().getMetaboliteIdNameMap().put(product, new Integer(maxMetabId));
-											}		
-										}
-										
-										Integer id = (Integer) LocalConfig.getInstance().getMetaboliteIdNameMap().get(product);
-										
-										String insert = "INSERT INTO reaction_products(reaction_id, stoic, metabolite_id) values (" + (i - correction) + ", " + stoicStr + ", " + id + ");";
-										stat.executeUpdate(insert);	
-										String update = "update metabolites set used='true' where id=" + id + ";";
-										stat.executeUpdate(update);
-										
-									} else {
-										//Invalid reaction
-										valid = false;
-										break;
+												metaboliteUsedMap.put(reactant, new Integer(1));
+												System.out.println(reactant + " " + metaboliteUsedMap.get(reactant));
+											}	
+											
+										} else {
+											//Invalid reaction
+											valid = false;
+											break;
+										}								
 									}
-								}							
+								}
+								//reactions of the type a ==> will be size 1, assigned the value [0] in parser
+								ArrayList<ArrayList> products = parser.reactionList(reactionString.trim()).get(1);
+								if (products.get(0).size() == 1) {
+								} else {
+									for (int p = 0; p < products.size(); p++) {
+										if (products.get(p).size() == 2) {
+											String stoicStr = (String) products.get(p).get(0);
+											String product = (String) products.get(p).get(1);
+											String addMetab = "insert into metabolites (metabolite_abbreviation, boundary, used) values('"  + product + "', 'false', 'true');";
+											
+											if (!(LocalConfig.getInstance().getMetaboliteIdNameMap().containsKey(product))) {
+												if (GraphicalInterface.showPrompt) {
+													Object[] options = {"Yes",
+															"Yes to All",
+													"No"};
+
+													int choice = JOptionPane.showOptionDialog(null, 
+															"The metabolite " + product + " does not exist. Do you wish to add it?", 
+															"Add Metabolite?", 
+															JOptionPane.YES_NO_CANCEL_OPTION, 
+															JOptionPane.QUESTION_MESSAGE, 
+															null, options, options[0]);
+													//options[0] sets "Yes" as default button
+
+													// interpret the user's choice	  
+													if (choice == JOptionPane.YES_OPTION)
+													{
+														stat.executeUpdate(addMetab);
+														maxMetabId += 1;
+														LocalConfig.getInstance().getMetaboliteIdNameMap().put(product, new Integer(maxMetabId));
+													}
+													//No option actually corresponds to "Yes to All" button
+													if (choice == JOptionPane.NO_OPTION)
+													{
+														GraphicalInterface.showPrompt = false;
+														stat.executeUpdate(addMetab);
+														maxMetabId += 1;
+														LocalConfig.getInstance().getMetaboliteIdNameMap().put(product, new Integer(maxMetabId));
+													}
+													//Cancel option actually corresponds to "No" button
+													if (choice == JOptionPane.CANCEL_OPTION) {
+														addMetaboliteOption = false;
+														reactionString = "";
+														valid = false;
+													}	  
+												} else {
+													stat.executeUpdate(addMetab);
+													maxMetabId += 1;
+													LocalConfig.getInstance().getMetaboliteIdNameMap().put(product, new Integer(maxMetabId));
+												}		
+											}
+											
+											Integer id = (Integer) LocalConfig.getInstance().getMetaboliteIdNameMap().get(product);
+											
+											String insert = "INSERT INTO reaction_products(reaction_id, stoic, metabolite_id) values (" + (i - correction) + ", " + stoicStr + ", " + id + ");";
+											stat.executeUpdate(insert);	
+											String update = "update metabolites set used='true' where id=" + id + ";";
+											stat.executeUpdate(update);
+											if (metaboliteUsedMap.containsKey(product)) {
+												int usedCount = (Integer) metaboliteUsedMap.get(product);
+												metaboliteUsedMap.put(product, new Integer(usedCount + 1));
+												System.out.println(product + " " + metaboliteUsedMap.get(product));									
+											} else {
+												metaboliteUsedMap.put(product, new Integer(1));
+												System.out.println(product + " " + metaboliteUsedMap.get(product));
+											}
+											
+										} else {
+											//Invalid reaction
+											valid = false;
+											break;
+										}
+									}							
+								}
+							} else {
+								//Invalid reaction
+								valid = false;
 							}
+							
 							
 							if (!valid) {
 								String deleteReac = "delete from reaction_reactants where reaction_id=" + (i - correction) + ";";
@@ -522,7 +557,10 @@ public class TextReactionsModelReader {
 			}
 
 			conn.close();
-			LocalConfig.getInstance().setProgress(100);		
+			LocalConfig.getInstance().setProgress(100);	
+			LocalConfig.getInstance().setMetaboliteUsedMap(metaboliteUsedMap);
+			System.out.println(metaboliteUsedMap);
+			System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
 
 		}catch(SQLException e){
 

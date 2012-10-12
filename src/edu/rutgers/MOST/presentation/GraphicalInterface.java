@@ -2103,10 +2103,17 @@ public class GraphicalInterface extends JFrame {
 	
 	HighlightPredicate unusedPredicate = new HighlightPredicate() {
 		public boolean isHighlighted(Component renderer ,ComponentAdapter adapter) {
+			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(adapter.row);			
+			if (highlightUnusedMetabolites == true && !(LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN).toString()))) {					
+				return true;
+			}
+
+			/*
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(adapter.row);
 			if (highlightUnusedMetabolites == true && metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.USED_COLUMN).toString().equals("false")) {					
 				return true;
-			}					
+			}
+			*/
 			return false;
 		}
 	};
@@ -2999,19 +3006,6 @@ public class GraphicalInterface extends JFrame {
 			public void actionPerformed(ActionEvent ae) {
 				//to make sure that if user entered two spaces in reaction equation - still no highlight results
 				setParticipatingMetabolite("   "); 
-				String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
-				try {
-					Class.forName("org.sqlite.JDBC");
-					Connection con = DriverManager.getConnection(LocalConfig.getInstance().getLoadedDatabase());
-					setUpMetabolitesTable(con);
-					setUpReactionsTable(con);
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
 			}
 		});
 		contextMenu.add(unhighlightParticipatingReactionsMenu);
