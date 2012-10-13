@@ -26,6 +26,7 @@ import edu.rutgers.MOST.data.MetabolitesUpdater;
 import edu.rutgers.MOST.data.ModelReaction;
 import edu.rutgers.MOST.data.ReactionFactory;
 import edu.rutgers.MOST.data.ReactionsMetaColumnManager;
+import edu.rutgers.MOST.data.ReactionsUpdater;
 import edu.rutgers.MOST.data.SBMLMetabolite;
 import edu.rutgers.MOST.data.SBMLModelReader;
 import edu.rutgers.MOST.data.SBMLReaction;
@@ -3972,14 +3973,31 @@ public class GraphicalInterface extends JFrame {
 	}
 
 	public void reactionsDeleteRows() {
+		//TODO: need to account for deleted reactions - used status
 		int rowIndexStart = reactionsTable.getSelectedRow();
 		int rowIndexEnd = reactionsTable.getSelectionModel().getMaxSelectionIndex();
 		ArrayList<Integer> deleteIds = new ArrayList<Integer>();
+		ArrayList<String> deleteAbbreviations = new ArrayList<String>();
 		for (int r = rowIndexStart; r <= rowIndexEnd; r++) {
 			int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(r);
 			int id = (Integer.valueOf((String) GraphicalInterface.reactionsTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN)));
 			deleteIds.add(id);
 		}
+		ReactionsUpdater updater = new ReactionsUpdater();
+		updater.deleteRows(deleteIds, LocalConfig.getInstance().getLoadedDatabase());
+		String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
+		try {
+			Class.forName("org.sqlite.JDBC");
+			Connection con = DriverManager.getConnection(fileString);
+			setUpReactionsTable(con);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*
 		for (int d = 0; d < deleteIds.size(); d++) {			
 			ReactionFactory aFactory = new ReactionFactory();
 
@@ -4017,6 +4035,7 @@ public class GraphicalInterface extends JFrame {
 		}
 		reactionsTable.setColumnSelectionAllowed(true);
 		reactionsTable.setRowSelectionAllowed(true);
+		*/
 	}
 	
 	/**************************************************************************/
@@ -4216,6 +4235,8 @@ public class GraphicalInterface extends JFrame {
 	}
 	
 	public void metabolitesClear() {
+		ArrayList<Integer> idList = new ArrayList<Integer>();
+		MetabolitesUpdater updater = new MetabolitesUpdater();
 		//TODO: Clear must throw an error if user attempts to clear
 		//a used metabolite, but should be able to clear an unused
 		//metabolite- see delete
@@ -4232,10 +4253,12 @@ public class GraphicalInterface extends JFrame {
 						if (startRow+i< metabolitesTable.getRowCount()  && 
 								startCol+j< metabolitesTable.getColumnCount()) 
 							viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
+						idList.add(viewRow);
 						metabolitesTable.setValueAt(" ",startRow+i,startCol+j);
-						updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 					} 
-				} 
+				}
+				updater.updateMetaboliteRows(idList, LocalConfig.getInstance().getLoadedDatabase());
 			} 
 			catch(Exception ex){
 				//ex.printStackTrace();
@@ -4278,6 +4301,9 @@ public class GraphicalInterface extends JFrame {
 			} 			
 		setClipboardContents(sbf.toString());
 		String copiedString = getClipboardContents(GraphicalInterface.this);
+		
+		MetabolitesUpdater updater = new MetabolitesUpdater();
+		ArrayList<Integer> idList = new ArrayList<Integer>();
 		int startCol=(metabolitesTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
 			try 
@@ -4285,12 +4311,13 @@ public class GraphicalInterface extends JFrame {
 				String[] rowstring = copiedString.split("\t");
 				for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
 					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
+					idList.add(viewRow);
 					if (c < rowstring.length) {		
 						metabolitesTable.setValueAt(rowstring[c], r, startCol+c);
-						updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 					} else {
 						metabolitesTable.setValueAt(" ", r, startCol+c);
-						updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+						//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 					}
 				}
 			} 
@@ -4299,10 +4326,12 @@ public class GraphicalInterface extends JFrame {
 				System.out.println("Fill error");
 			}
 		}
+		updater.updateMetaboliteRows(idList, LocalConfig.getInstance().getLoadedDatabase());
 	}
 
 	public void metaboliteDeleteRows() {
-		MetaboliteFactory mFactory = new MetaboliteFactory();
+		//need to check if unused
+		//MetaboliteFactory mFactory = new MetaboliteFactory();
 		int rowIndexStart = metabolitesTable.getSelectedRow();
 		int rowIndexEnd = metabolitesTable.getSelectionModel().getMaxSelectionIndex();
 		ArrayList<Integer> deleteIds = new ArrayList<Integer>();
@@ -4311,10 +4340,25 @@ public class GraphicalInterface extends JFrame {
 			int id = (Integer.valueOf((String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN)));
 			deleteIds.add(id);
 		}
+		MetabolitesUpdater updater = new MetabolitesUpdater();
+		updater.deleteRows(deleteIds, LocalConfig.getInstance().getLoadedDatabase());
+		String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
+		try {
+			Class.forName("org.sqlite.JDBC");
+			Connection con = DriverManager.getConnection(fileString);
+			setUpMetabolitesTable(con);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*
 		for (int d = 0; d < deleteIds.size(); d++) {
 			if (mFactory.isUnused(deleteIds.get(d), LocalConfig.getInstance().getLoadedDatabase())) {
-				DatabaseCreator creator = new DatabaseCreator();
-				creator.deleteMetabolitesRow(LocalConfig.getInstance().getLoadedDatabase(), deleteIds.get(d));
+				//DatabaseCreator creator = new DatabaseCreator();
+				//creator.deleteMetabolitesRow(LocalConfig.getInstance().getLoadedDatabase(), deleteIds.get(d));
 				String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
 				try {
 					Class.forName("org.sqlite.JDBC");
@@ -4331,6 +4375,7 @@ public class GraphicalInterface extends JFrame {
 				System.out.println("Row " + deleteIds.get(d) + " cannot be deleted since it is used");
 			}
 		}
+		*/
 	}
 	
 	/**************************************************************************/

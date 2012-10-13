@@ -124,4 +124,35 @@ public class MetabolitesUpdater {
 
 	}
 	
+	public void deleteRows(ArrayList<Integer> idList, String databaseName) {
+		//TODO: need to check if unused
+		String queryString = "jdbc:sqlite:" + databaseName + ".db";
+		
+		try{
+			Connection conn =
+				DriverManager.getConnection(queryString);
+			Statement stat = conn.createStatement();
+
+			try {
+				stat.executeUpdate("BEGIN TRANSACTION");
+
+				for (int i = 0; i < idList.size(); i++) {
+					String delete = "delete from metabolites where id = " + idList.get(i) + ";";
+					stat.executeUpdate(delete);
+				}
+				
+				stat.executeUpdate("COMMIT");
+			} catch (Exception e) {
+				e.printStackTrace();
+				stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION
+			}
+
+		}catch(SQLException e){
+
+			e.printStackTrace();
+
+		}
+		
+	}
+	
 }
