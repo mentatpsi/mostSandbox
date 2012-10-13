@@ -22,6 +22,7 @@ import edu.rutgers.MOST.data.DatabaseCreator;
 import edu.rutgers.MOST.data.FBAModel;
 import edu.rutgers.MOST.data.MetaboliteFactory;
 import edu.rutgers.MOST.data.MetabolitesMetaColumnManager;
+import edu.rutgers.MOST.data.MetabolitesUpdater;
 import edu.rutgers.MOST.data.ModelReaction;
 import edu.rutgers.MOST.data.ReactionFactory;
 import edu.rutgers.MOST.data.ReactionsMetaColumnManager;
@@ -33,6 +34,7 @@ import edu.rutgers.MOST.data.TextMetabolitesWriter;
 import edu.rutgers.MOST.data.TextReactionsModelReader;
 import edu.rutgers.MOST.data.TextReactionsWriter;
 import edu.rutgers.MOST.logic.ReactionParser;
+import edu.rutgers.MOST.logic.ReactionParser1;
 import edu.rutgers.MOST.optimization.FBA.Optimize;
 import edu.rutgers.MOST.optimization.solvers.GurobiSolver;
 
@@ -1681,7 +1683,13 @@ public class GraphicalInterface extends JFrame {
 
 					SBMLReaction aReaction = (SBMLReaction)aFactory.getReactionById(Integer.parseInt((String) (reactionsTable.getModel().getValueAt(tcl.getRow(), 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 					ReactionParser parser = new ReactionParser();
-				    		
+					
+					ReactionParser1 parser1 = new ReactionParser1();
+					ArrayList<ArrayList> oldReactionList = parser1.reactionList(tcl.getOldValue());
+					ArrayList<ArrayList> newReactionList = parser1.reactionList(tcl.getNewValue());
+					System.out.println(oldReactionList);
+					System.out.println(newReactionList);
+
 					try {
 						//updates reaction_reactant and reaction_product tables
 						if (parser.isValid(aReaction.getReactionString())) {
@@ -1756,7 +1764,7 @@ public class GraphicalInterface extends JFrame {
 		{   	  
 			TableCellListener mtcl = (TableCellListener)e.getSource();
 			updateMetabolitesDatabaseRow(mtcl.getRow(), Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 
-			//System.out.println(mtcl.getRow());
+			System.out.println(mtcl.getRow());
             //System.out.println(Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))));
 		}
 	};
@@ -2133,7 +2141,6 @@ public class GraphicalInterface extends JFrame {
 		metabolitesTable.setCellSelectionEnabled(true);
 		
 		metabolitesTable.getColumnExt("id").setComparator(numberComparator);
-		metabolitesTable.getColumnExt("charge").setComparator(numberComparator);
 				
 		metabolitesTable.getTableHeader().addMouseListener(new MetabolitesColumnHeaderListener());
 		metabolitesTable.getTableHeader().addMouseListener(new MetabolitesHeaderPopupListener());
@@ -3241,6 +3248,7 @@ public class GraphicalInterface extends JFrame {
 			updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 					
 			ReactionParser parser = new ReactionParser();
+			
 			if (parser.isValid(aReaction.getReactionString())) {
 				//System.out.println(aReaction.getReactionString());	
 				ArrayList reactantsAndProducts = parser.parseReaction(aReaction.getReactionString(), id, LocalConfig.getInstance().getLoadedDatabase());
@@ -4191,16 +4199,20 @@ public class GraphicalInterface extends JFrame {
 
 	public void pasteMetaboliteRow(String[] rowstring, int startRow, int startCol, int row) {
 		int viewRow = 0;
+		ArrayList<Integer> idList = new ArrayList<Integer>();
+		MetabolitesUpdater updater = new MetabolitesUpdater();
 		for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
-			viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(row);
+			viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow + row);
+			idList.add(viewRow);
 			if (c < rowstring.length) {		
 				metabolitesTable.setValueAt(rowstring[c], startRow + row, startCol + c);
-				updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+				//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 			} else {
 				metabolitesTable.setValueAt(" ", startRow + row, startCol + c);
-				updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+				//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 			}
 		}
+		updater.updateMetaboliteRows(idList, LocalConfig.getInstance().getLoadedDatabase());
 	}
 	
 	public void metabolitesClear() {
