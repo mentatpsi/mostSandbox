@@ -125,6 +125,13 @@ public class GraphicalInterfaceConstants {
     public static final int USED_COLUMN = 21;
     public static final int METABOLITE_META_DEFAULT_WIDTH = 150;
     
+    public static final double FLUX_VALUE_DEFAULT = 0.0;
+    public static final double LOWER_BOUND_DEFAULT = -999999.0;
+    public static final double UPPER_BOUND_DEFAULT = 999999.0;
+    public static final double BIOLOGICAL_OBJECTIVE_DEFAULT = 0.0;
+    public static final String KO_DEFAULT = "false";
+    
+    
     public static final String[] BOOLEAN_VALUES = {"false", "true"};
 	
     public static final String HELP_TOPICS_URL = "http://most.codeplex.com/wikipage?title=MOST%20Help";

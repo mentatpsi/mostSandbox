@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.RowFilter.ComparisonType;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.xml.stream.XMLStreamException;
 import org.jdesktop.swingx.JXTable;
@@ -43,7 +42,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
@@ -68,15 +66,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.StringTokenizer;
 import java.util.Vector;
 import gurobi.GRB;
 import gurobi.GRBException;
 import gurobi.GRBVar;
 
 import org.apache.log4j.Logger;
-
-import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
 
 import layout.TableLayout;
 
@@ -1765,7 +1760,7 @@ public class GraphicalInterface extends JFrame {
 		{   	  
 			TableCellListener mtcl = (TableCellListener)e.getSource();
 			updateMetabolitesDatabaseRow(mtcl.getRow(), Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 
-			System.out.println(mtcl.getRow());
+			//System.out.println(mtcl.getRow());
             //System.out.println(Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))));
 		}
 	};
@@ -2503,20 +2498,7 @@ public class GraphicalInterface extends JFrame {
 
 	private JPopupMenu createReactionsContextMenu(final int rowIndex,
 			final int columnIndex) {
-		JPopupMenu reactionsContextMenu = new JPopupMenu();
-		
-		JMenuItem selectReacColMenu = new JMenuItem("Select Column(s)");
-		if (rowIndex > 0) {
-			selectReacColMenu.setEnabled(false);
-		}
-		
-		selectReacColMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				rxnColSelectionMode = true;
-				selectReactionsColumns();
-			}
-		});
-		reactionsContextMenu.add(selectReacColMenu);	
+		JPopupMenu reactionsContextMenu = new JPopupMenu();	
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -2572,7 +2554,22 @@ public class GraphicalInterface extends JFrame {
 			}
 		});
 		reactionsContextMenu.add(copyMenu);
+		
+		JMenuItem selectReacColMenu = new JMenuItem("Copy Column(s)");
+		if (rowIndex > 0) {
+			selectReacColMenu.setEnabled(false);
+		}
+		
+		selectReacColMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rxnColSelectionMode = true;
+				selectReactionsColumns();
+			}
+		});
+		reactionsContextMenu.add(selectReacColMenu);
 
+		reactionsContextMenu.addSeparator();
+		
 		JMenuItem pasteMenu = new JMenuItem("Paste");
 		if (rowIndex > 0 && rxnColSelectionMode == true) {
 			pasteMenu.setEnabled(false);
@@ -2672,32 +2669,7 @@ public class GraphicalInterface extends JFrame {
 
 	private JPopupMenu createContextMenu(final int rowIndex,
 			final int columnIndex) {
-		JPopupMenu contextMenu = new JPopupMenu();
-
-		JMenuItem selectRowMenu = new JMenuItem("Select Row(s)");
-		if (columnIndex > 1) {
-			selectRowMenu.setEnabled(false);
-		}
-		selectRowMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				includeRxnColumnNames = false;
-				selectReactionsRows();
-			}
-		});
-		contextMenu.add(selectRowMenu);	
-		
-		JMenuItem selectReacColMenu = new JMenuItem("Select Column(s)");
-		if (rowIndex > 0) {
-			selectReacColMenu.setEnabled(false);
-		}
-		
-		selectReacColMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				rxnColSelectionMode = true;
-				selectReactionsColumns();
-			}
-		});
-		contextMenu.add(selectReacColMenu);		
+		JPopupMenu contextMenu = new JPopupMenu();	
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -2753,7 +2725,34 @@ public class GraphicalInterface extends JFrame {
 			}
 		});
 		contextMenu.add(copyMenu);
+		
+		JMenuItem selectRowMenu = new JMenuItem("Copy Row(s)");
+		if (columnIndex > 1) {
+			selectRowMenu.setEnabled(false);
+		}
+		selectRowMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				includeRxnColumnNames = false;
+				selectReactionsRows();
+			}
+		});
+		contextMenu.add(selectRowMenu);	
+		
+		JMenuItem selectReacColMenu = new JMenuItem("Copy Column(s)");
+		if (rowIndex > 0) {
+			selectReacColMenu.setEnabled(false);
+		}
+		
+		selectReacColMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rxnColSelectionMode = true;
+				selectReactionsColumns();
+			}
+		});
+		contextMenu.add(selectReacColMenu);	
 
+		contextMenu.addSeparator();
+		
 		JMenuItem pasteMenu = new JMenuItem("Paste");
 		if (rowIndex > 0 && rxnColSelectionMode == true) {
 			pasteMenu.setEnabled(false);
@@ -2887,32 +2886,7 @@ public class GraphicalInterface extends JFrame {
 
 	private JPopupMenu createMetaboliteAbbreviationContextMenu(final int rowIndex,
 			final int columnIndex) {
-		JPopupMenu contextMenu = new JPopupMenu();
-
-		JMenuItem selectRowMenu = new JMenuItem("Select Row(s)");
-		if (columnIndex > 1) {
-			selectRowMenu.setEnabled(false);
-		}
-		selectRowMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				includeMtbColumnNames = false;
-				selectMetabolitesRows();
-			}
-		});
-		contextMenu.add(selectRowMenu);	
-		
-		JMenuItem selectMetabColMenu = new JMenuItem("Select Column(s)");
-		if (rowIndex > 0) {
-			selectMetabColMenu.setEnabled(false);
-		}
-		
-		selectMetabColMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mtbColSelectionMode = true;
-				selectMetabolitesColumns();
-			}
-		});
-		contextMenu.add(selectMetabColMenu);		
+		JPopupMenu contextMenu = new JPopupMenu();		
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -2970,6 +2944,33 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(copyMenu);
 
+		JMenuItem selectRowMenu = new JMenuItem("Copy Row(s)");
+		if (columnIndex > 1) {
+			selectRowMenu.setEnabled(false);
+		}
+		selectRowMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				includeMtbColumnNames = false;
+				selectMetabolitesRows();
+			}
+		});
+		contextMenu.add(selectRowMenu);	
+		
+		JMenuItem selectMetabColMenu = new JMenuItem("Copy Column(s)");
+		if (rowIndex > 0) {
+			selectMetabColMenu.setEnabled(false);
+		}
+		
+		selectMetabColMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mtbColSelectionMode = true;
+				selectMetabolitesColumns();
+			}
+		});
+		contextMenu.add(selectMetabColMenu);
+		
+		contextMenu.addSeparator();
+		
 		JMenuItem pasteMenu = new JMenuItem("Paste");
 		if (rowIndex > 0 && mtbColSelectionMode == true) {
 			pasteMenu.setEnabled(false);
@@ -3046,32 +3047,7 @@ public class GraphicalInterface extends JFrame {
 
 	private JPopupMenu createMetabolitesContextMenu(final int rowIndex,
 			final int columnIndex) {
-		JPopupMenu contextMenu = new JPopupMenu();
-
-		JMenuItem selectRowMenu = new JMenuItem("Select Row(s)");
-		if (columnIndex > 1) {
-			selectRowMenu.setEnabled(false);
-		}
-		selectRowMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				includeMtbColumnNames = false;
-				selectMetabolitesRows();
-			}
-		});
-		contextMenu.add(selectRowMenu);	
-		
-		JMenuItem selectMetabColMenu = new JMenuItem("Select Column(s)");
-		if (rowIndex > 0) {
-			selectMetabColMenu.setEnabled(false);
-		}
-		
-		selectMetabColMenu.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mtbColSelectionMode = true;
-				selectMetabolitesColumns();
-			}
-		});
-		contextMenu.add(selectMetabColMenu);		
+		JPopupMenu contextMenu = new JPopupMenu();		
 		
 		JMenu selectAllMenu = new JMenu("Select All");
 		
@@ -3128,6 +3104,33 @@ public class GraphicalInterface extends JFrame {
 		});
 		contextMenu.add(copyMenu);
 
+		JMenuItem selectRowMenu = new JMenuItem("Copy Row(s)");
+		if (columnIndex > 1) {
+			selectRowMenu.setEnabled(false);
+		}
+		selectRowMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				includeMtbColumnNames = false;
+				selectMetabolitesRows();
+			}
+		});
+		contextMenu.add(selectRowMenu);	
+		
+		JMenuItem selectMetabColMenu = new JMenuItem("Copy Column(s)");
+		if (rowIndex > 0) {
+			selectMetabColMenu.setEnabled(false);
+		}
+		
+		selectMetabColMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mtbColSelectionMode = true;
+				selectMetabolitesColumns();
+			}
+		});
+		contextMenu.add(selectMetabColMenu);
+		
+		contextMenu.addSeparator();
+		
 		JMenuItem pasteMenu = new JMenuItem("Paste");
 		if (rowIndex > 0 && mtbColSelectionMode == true) {
 			pasteMenu.setEnabled(false);
@@ -3489,6 +3492,8 @@ public class GraphicalInterface extends JFrame {
 			    catch ( NumberFormatException nfe ) {
 			       System.out.println( "Number format exception" );
 			    }				
+			} else {
+				aReaction.setFluxValue(GraphicalInterfaceConstants.FLUX_VALUE_DEFAULT);
 			}
 
 			aReaction.setReactionAbbreviation((String) reactionsTable.getModel().getValueAt(rowIndex, GraphicalInterfaceConstants.REACTION_ABBREVIATION_COLUMN));
@@ -3512,7 +3517,7 @@ public class GraphicalInterface extends JFrame {
 			       System.out.println( "Number format exception" );
 			    }					
 			} else {
-				aReaction.setLowerBound(-999999);
+				aReaction.setLowerBound(GraphicalInterfaceConstants.LOWER_BOUND_DEFAULT);
 			}
 			if (reactionsTable.getModel().getValueAt(rowIndex, GraphicalInterfaceConstants.UPPER_BOUND_COLUMN) != null) {
 				try {
@@ -3522,7 +3527,7 @@ public class GraphicalInterface extends JFrame {
 			       System.out.println( "Number format exception" );
 			    }				
 			} else {
-				aReaction.setUpperBound(999999);
+				aReaction.setUpperBound(GraphicalInterfaceConstants.UPPER_BOUND_DEFAULT);
 			}
 			if (reactionsTable.getModel().getValueAt(rowIndex, GraphicalInterfaceConstants.BIOLOGICAL_OBJECTIVE_COLUMN) != null) {
 				try {
@@ -3532,7 +3537,7 @@ public class GraphicalInterface extends JFrame {
 			       System.out.println( "Number format exception" );
 			    }				
 			} else {
-				aReaction.setBiologicalObjective(0);
+				aReaction.setBiologicalObjective(GraphicalInterfaceConstants.BIOLOGICAL_OBJECTIVE_DEFAULT);
 			}
 			
 			aReaction.setMeta1((String) reactionsTable.getModel().getValueAt(rowIndex, GraphicalInterfaceConstants.REACTION_META1_COLUMN));			
@@ -3881,16 +3886,20 @@ public class GraphicalInterface extends JFrame {
 
 	public void pasteReactionRow(String[] rowstring, int startRow, int startCol, int row) {
 		int viewRow = 0;
+		ArrayList<Integer> idList = new ArrayList<Integer>();
+		ReactionsUpdater updater = new ReactionsUpdater();
 		for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
-			viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(row);
+			viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow + row);
+			idList.add(viewRow);
 			if (c < rowstring.length) {		
 				reactionsTable.setValueAt(rowstring[c], startRow + row, startCol + c);
-				updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+				//updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 			} else {
 				reactionsTable.setValueAt(" ", startRow + row, startCol + c);
-				updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+				//updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
 			}
 		}
+		updater.updateReactionRows(idList, LocalConfig.getInstance().getLoadedDatabase());
 	}
 	
 	public void reactionsClear() {

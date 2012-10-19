@@ -11,6 +11,7 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 import org.sbml.jsbml.*;
 
 import edu.rutgers.MOST.config.LocalConfig;
+import edu.rutgers.MOST.presentation.GraphicalInterfaceConstants;
 import edu.rutgers.MOST.presentation.ProgressConstants;
 
 public class SBMLModelReader {
@@ -380,11 +381,11 @@ public class SBMLModelReader {
 
 					String reactionString = rxnBfr.toString().trim();
 					
-					String knockout = "false";	
-					Double lowerBound = -999999.0;
-					Double upperBound =	999999.0;
-					Double objective = 0.0;
-					Double fluxValue = 0.0;
+					String knockout = GraphicalInterfaceConstants.KO_DEFAULT;	
+					Double lowerBound = GraphicalInterfaceConstants.LOWER_BOUND_DEFAULT;
+					Double upperBound =	GraphicalInterfaceConstants.UPPER_BOUND_DEFAULT;
+					Double objective = GraphicalInterfaceConstants.BIOLOGICAL_OBJECTIVE_DEFAULT;
+					Double fluxValue = GraphicalInterfaceConstants.FLUX_VALUE_DEFAULT;
 					
 					//if strings contain ' (single quote), it will not execute insert statement
 					//this code escapes ' as '' - sqlite syntax for escaping '

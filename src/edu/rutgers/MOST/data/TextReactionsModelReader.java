@@ -18,6 +18,7 @@ import edu.rutgers.MOST.config.LocalConfig;
 import edu.rutgers.MOST.logic.ReactionParser;
 import edu.rutgers.MOST.logic.ReactionParser1;
 import edu.rutgers.MOST.presentation.GraphicalInterface;
+import edu.rutgers.MOST.presentation.GraphicalInterfaceConstants;
 
 public class TextReactionsModelReader {
 	
@@ -180,15 +181,15 @@ public class TextReactionsModelReader {
 					}
 					
 					if (i >= (row + correction)) {
-						String knockout = "false";
-						Double fluxValue = 0.0;
+						String knockout = GraphicalInterfaceConstants.KO_DEFAULT;
+						Double fluxValue = GraphicalInterfaceConstants.FLUX_VALUE_DEFAULT;
 						String reactionAbbreviation = "";
 						String reactionName = "";
 						String reactionString = "";
-						String reversible = "false";
-						Double lowerBound = -999999.0;
-						Double upperBound =	999999.0;
-						Double objective = 0.0;
+						String reversible = "";
+						Double lowerBound = GraphicalInterfaceConstants.LOWER_BOUND_DEFAULT;
+						Double upperBound =	GraphicalInterfaceConstants.UPPER_BOUND_DEFAULT;
+						Double objective = GraphicalInterfaceConstants.BIOLOGICAL_OBJECTIVE_DEFAULT;
 						String meta1 = "";
 						String meta2 = "";
 						String meta3 = "";
@@ -243,7 +244,8 @@ public class TextReactionsModelReader {
 							if (dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("false") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("FALSE") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("0") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("0.0") == 0) {
 								reversible = "false";
 							} else if (dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("true") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("TRUE") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("1") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("1.0") == 0) {
-								reversible = "true";													
+								reversible = "true";
+								//TODO: use reaction equation arrow to get reversible status
 							} else {
 								reversible = dataArray[LocalConfig.getInstance().getReversibleColumnIndex()];
 							}
