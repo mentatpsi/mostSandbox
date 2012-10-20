@@ -12,7 +12,7 @@ import edu.rutgers.MOST.presentation.GraphicalInterfaceConstants;
 
 public class MetabolitesUpdater {
 
-	public void updateMetaboliteRows(ArrayList<Integer> idList, String databaseName) {
+	public void updateMetaboliteRows(ArrayList<Integer> idList, ArrayList<Integer> metabIdList, String databaseName) {
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
 		
 		try{
@@ -31,6 +31,7 @@ public class MetabolitesUpdater {
 					if (metaboliteAbbreviation.contains("'")) {
 						metaboliteAbbreviation = metaboliteAbbreviation.replaceAll("'", "''");
 					}
+					System.out.println(metaboliteAbbreviation);
 					String metaboliteName = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(idList.get(i), GraphicalInterfaceConstants.METABOLITE_NAME_COLUMN);
 					if (metaboliteName.contains("'")) {
 						metaboliteName = metaboliteName.replaceAll("'", "''");
@@ -106,7 +107,7 @@ public class MetabolitesUpdater {
 					String update = "update metabolites set metabolite_abbreviation='" + metaboliteAbbreviation + "', metabolite_name='" + metaboliteName + "', charge='" + charge + "', " 
 						+ " compartment='" + compartment + "', boundary='" + boundary + "', meta_1='" + meta1 + "', meta_2='" + meta2 + "', meta_3='" + meta3 + "', meta_4='" + meta4 + "', meta_5='" + meta5 + "', "
 						+ " meta_6='" + meta6 + "', meta_7='" + meta7 + "', meta_8='" + meta8 + "', meta_9='" + meta9 + "', meta_10='" + meta10 + "', "
-						+ " meta_11='" + meta11 + "', meta_12='" + meta12 + "', meta_13='" + meta13 + "', meta_14='" + meta14 + "', meta_15='" + meta15 + "', used='" + used + "' where id=" + (idList.get(i) + 1) + ";";
+						+ " meta_11='" + meta11 + "', meta_12='" + meta12 + "', meta_13='" + meta13 + "', meta_14='" + meta14 + "', meta_15='" + meta15 + "', used='" + used + "' where id=" + (metabIdList.get(i) + 1) + ";";
 					stat.executeUpdate(update);
 				}
 				
