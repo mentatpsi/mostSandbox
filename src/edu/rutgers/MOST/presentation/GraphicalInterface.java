@@ -4174,21 +4174,13 @@ public class GraphicalInterface extends JFrame {
 
 	public void metabolitesPaste() {
 		MetabolitesUpdater updater = new MetabolitesUpdater();
-		ArrayList<Integer> idList = new ArrayList<Integer>();
+		ArrayList<Integer> rowList = new ArrayList<Integer>();
 		ArrayList<Integer> metabIdList = new ArrayList<Integer>();
 		//TODO: Paste must throw an error if user attempts to paste over
 		//a used metabolite	- see delete
 		String copiedString = getClipboardContents(GraphicalInterface.this);
 		String[] s1 = copiedString.split("\n");
 		int startRow = (metabolitesTable.getSelectedRows())[0];
-		/*
-		for (int z = 0; z < LocalConfig.getInstance().getNumberCopiedRows(); z++) {
-			System.out.println("z" + (metabolitesTable.getSelectedRows()[0] + z));
-			int id = metabolitesTable.convertRowIndexToModel(metabolitesTable.getSelectedRows()[0] + z);
-			idList.add(id);			
-		}	
-		System.out.println(idList);
-		*/
 		int startCol = (metabolitesTable.getSelectedColumns())[0];
 		if (mtbColSelectionMode == true && startRow != 0) {
 			//do not paste if column is selected and selected cell is not 
@@ -4200,19 +4192,23 @@ public class GraphicalInterface extends JFrame {
 					//contents repeatedly until end of selection, based on integer division
 					//with no remainder
 					int quotient = metabolitesTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
-					for (int q = 0; q < quotient; q++) {						
+					for (int q = 0; q < quotient; q++) {	
+						//there are two for loops since when pasting into a sorted column the column  
+						//sorts itself for each value inserted into table, causing row numbers to change 
+						//and erroneous results. making lists of row numbers and db id's, then inserting 
+						//values into table and db based on these lists solves this problem
 						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
 							System.out.println("r" + (startRow + r));
-							int id = metabolitesTable.convertRowIndexToModel(startRow + r);
-							idList.add(id);
-							int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(id, 0));
+							int row = metabolitesTable.convertRowIndexToModel(startRow + r);
+							rowList.add(row);
+							int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
 							System.out.println(metabId);
-							metabIdList.add(metabId - 1);
+							metabIdList.add(metabId);
 						}
 						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
 							System.out.println(s1[r]);
-							System.out.println("id" + idList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
-							int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(idList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
+							System.out.println("id" + rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
+							int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
 							System.out.println("view" + viewRow);
 							String[] rowstring = s1[r].split("\t");
 							for (int c = 0; c < rowstring.length; c++) {
@@ -4221,8 +4217,8 @@ public class GraphicalInterface extends JFrame {
 						}	
 						startRow += LocalConfig.getInstance().getNumberCopiedRows();
 					}
-					System.out.println(idList);
-					updater.updateMetaboliteRows(idList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());
+					System.out.println(rowList);
+					updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());
 					
 				}
 				//if selected area is smaller than copied area, fills in copied area
@@ -4230,75 +4226,56 @@ public class GraphicalInterface extends JFrame {
 			} else {
 				for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
 					System.out.println("r" + (startRow + r));
-					int id = metabolitesTable.convertRowIndexToModel(startRow + r);
-					idList.add(id);
-					int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(id, 0));
+					int row = metabolitesTable.convertRowIndexToModel(startRow + r);
+					rowList.add(row);
+					int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
 					System.out.println(metabId);
-					metabIdList.add(metabId - 1);
+					metabIdList.add(metabId);
 				}
 				for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
 					System.out.println(s1[r]);	
-					System.out.println("id" + idList.get(r));
-					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(idList.get(r));
+					System.out.println("id" + rowList.get(r));
+					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(r));
 					System.out.println("view" + viewRow);
 					String[] rowstring = s1[r].split("\t");
 					for (int c = 0; c < rowstring.length; c++) {
 						metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
 					}
 				}	
-				System.out.println(idList);
-				updater.updateMetaboliteRows(idList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
+				System.out.println(rowList);
+				updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
 			}
 		}		
 	}
 
-	public void pasteMetaboliteRow(String[] rowstring, int startRow, int startCol, int r) {
-		ArrayList<Integer> viewRowList = new ArrayList();
-		for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
-			
-			if (c < rowstring.length) {	
-				//int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow + r);
-				metabolitesTable.setValueAt(rowstring[c], startRow + r, startCol + c);
-				//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-			} else {
-				//int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow + r);
-				metabolitesTable.setValueAt(" ", startRow + r, startCol + c);
-				//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-			}
-		}
-	}
-	
 	public void metabolitesClear() {
-		ArrayList<Integer> idList = new ArrayList<Integer>();
 		MetabolitesUpdater updater = new MetabolitesUpdater();
+		ArrayList<Integer> rowList = new ArrayList<Integer>();
+		ArrayList<Integer> metabIdList = new ArrayList<Integer>();
 		//TODO: Clear must throw an error if user attempts to clear
 		//a used metabolite, but should be able to clear an unused
-		//metabolite- see delete
+		//metabolite- see delete, also should not be able to clear boundary
 		int startRow=(metabolitesTable.getSelectedRows())[0]; 
 		int startCol=(metabolitesTable.getSelectedColumns())[0];
 		if (startCol != GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN) {
-			try 
-			{ 			
-				for(int i=0; i < metabolitesTable.getSelectedRows().length ;i++) 
-				{ 
-					for(int j=0; j < metabolitesTable.getSelectedColumns().length ;j++) 
-					{ 
-						int viewRow = 0;
-						if (startRow+i< metabolitesTable.getRowCount()  && 
-								startCol+j< metabolitesTable.getColumnCount()) 
-							viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(startRow+i);
-						idList.add(viewRow);
-						metabolitesTable.setValueAt(" ",startRow+i,startCol+j);
-						//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					} 
-				}
-				System.out.println(idList);
-				//updater.updateMetaboliteRows(idList, LocalConfig.getInstance().getLoadedDatabase());
-			} 
-			catch(Exception ex){
-				//ex.printStackTrace();
-				System.out.println("Clear error");
+			for (int r = 0; r < metabolitesTable.getSelectedRows().length; r++) {
+				System.out.println("r" + (startRow + r));
+				int row = metabolitesTable.convertRowIndexToModel(startRow + r);
+				rowList.add(row);
+				int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
+				System.out.println(metabId);
+				metabIdList.add(metabId);
 			}
+			for(int i=0; i < metabolitesTable.getSelectedRows().length ;i++) { 
+				for(int j=0; j < metabolitesTable.getSelectedColumns().length ;j++) { 					
+					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(i));
+					System.out.println("view" + viewRow);
+					metabolitesTable.setValueAt(" ", viewRow, startCol + j);
+					System.out.println("col" + (startCol + j));
+				} 
+			}
+			System.out.println(rowList);
+			updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
 		} else {
 			System.out.println("Cannot clear Metab abbrev column, some may be used.");
 		}
@@ -4309,60 +4286,39 @@ public class GraphicalInterface extends JFrame {
 	//value or row of values, not alternating rows
 	public void metabolitesFill(int start, int end) {
 		//TODO: Fill must throw an error if user attempts to fill over
-		//a used metabolite	- see delete	
-		StringBuffer sbf=new StringBuffer(); 
-		// Check to ensure we have selected only a contiguous block of 
-		// cells 
-		int numcols=metabolitesTable.getSelectedColumnCount(); 
-		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
-		int row=metabolitesTable.getSelectedRow(); 
-		int[] colsselected=metabolitesTable.getSelectedColumns(); 
-		if (!(numcols-1==colsselected[colsselected.length-1]-colsselected[0] && 
-						numcols==colsselected.length)) 
-		{ 
-			JOptionPane.showMessageDialog(null, "Invalid Copy Selection", 
-					"Invalid Copy Selection", 
-					JOptionPane.ERROR_MESSAGE); 
-			return; 
-		} 
-			for (int j=0;j<numcols;j++) 
-			{ 
-				if (metabolitesTable.getValueAt(row,colsselected[j]) != null) {
-					sbf.append(metabolitesTable.getValueAt(row,colsselected[j]));
-				} else {
-					sbf.append(" ");
-				}
-				if (j<numcols-1) sbf.append("\t"); 
-			} 			
-		setClipboardContents(sbf.toString());
+		//a used metabolite	- see delete
+		//also need to limit selection to one row
+		metabolitesCopy();
+       
 		String copiedString = getClipboardContents(GraphicalInterface.this);
-		
+		//String[] s1 = copiedString.split("\n");
 		MetabolitesUpdater updater = new MetabolitesUpdater();
-		ArrayList<Integer> idList = new ArrayList<Integer>();
+		ArrayList<Integer> rowList = new ArrayList<Integer>();
+		ArrayList<Integer> metabIdList = new ArrayList<Integer>();
 		int startCol=(metabolitesTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
-			try 
-			{ 
-				String[] rowstring = copiedString.split("\t");
-				for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
-					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
-					idList.add(viewRow);
-					if (c < rowstring.length) {		
-						metabolitesTable.setValueAt(rowstring[c], r, startCol+c);
-						//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					} else {
-						metabolitesTable.setValueAt(" ", r, startCol+c);
-						//updateMetabolitesDatabaseRow(viewRow, Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					}
-				}
-			} 
-			catch(Exception ex){
-				//ex.printStackTrace();
-				System.out.println("Fill error");
+			System.out.println("r" + r);
+			int row = metabolitesTable.convertRowIndexToModel(r);
+			System.out.println("row" + row);
+			rowList.add(row);
+			int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
+			System.out.println(metabId);
+			metabIdList.add(metabId);
+			System.out.println("id" + metabId);
+		}
+		System.out.println(rowList);
+		System.out.println(metabIdList);
+		for (int m = 0; m < rowList.size(); m++) {			
+			System.out.println("id" + rowList.get(m));
+			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(m));
+			System.out.println("view" + viewRow);
+			String[] rowstring = copiedString.split("\t");
+			for (int c = 0; c < rowstring.length; c++) {
+				metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
 			}
 		}
-		System.out.println(idList);
-		//updater.updateMetaboliteRows(idList, LocalConfig.getInstance().getLoadedDatabase());
+		System.out.println(rowList);
+		updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
 	}
 
 	public void metaboliteDeleteRows() {
