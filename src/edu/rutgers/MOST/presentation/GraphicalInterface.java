@@ -3834,9 +3834,13 @@ public class GraphicalInterface extends JFrame {
 	}
 
 	public void reactionsPaste() {
+		ReactionsUpdater updater = new ReactionsUpdater();
+		ArrayList<Integer> rowList = new ArrayList<Integer>();
+		ArrayList<Integer> reacIdList = new ArrayList<Integer>();
 		String copiedString = getClipboardContents(GraphicalInterface.this);
+		String[] s1 = copiedString.split("\n");
 		int startRow = (reactionsTable.getSelectedRows())[0];
-		int startCol=(reactionsTable.getSelectedColumns())[0];
+		int startCol = (reactionsTable.getSelectedColumns())[0];
 		if (rxnColSelectionMode == true && startRow != 0) {
 			//do not paste if column is selected and selected cell is not 
 			//in first row since it would result in an index error
@@ -3847,138 +3851,120 @@ public class GraphicalInterface extends JFrame {
 					//contents repeatedly until end of selection, based on integer division
 					//with no remainder
 					int quotient = reactionsTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
-					for (int q = 0; q < quotient; q++) {
-						try 
-						{ 
-							copiedString = getClipboardContents(GraphicalInterface.this);
-							String[] s1 = copiedString.split("\n");
-							for (int r = 0; r < s1.length; r++) {
-								String[] rowstring = s1[r].split("\t");
-								pasteReactionRow(rowstring, startRow, startCol, r);
-							}
-						} 
-						catch(Exception ex){
-							ex.printStackTrace();
-							System.out.println("Paste error");
-						} 
+					for (int q = 0; q < quotient; q++) {	
+						//there are two for loops since when pasting into a sorted column the column  
+						//sorts itself for each value inserted into table, causing row numbers to change 
+						//and erroneous results. making lists of row numbers and db id's, then inserting 
+						//values into table and db based on these lists solves this problem
+						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
+							System.out.println("r" + (startRow + r));
+							int row = reactionsTable.convertRowIndexToModel(startRow + r);
+							rowList.add(row);
+							int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
+							System.out.println(reacId);
+							reacIdList.add(reacId);
+						}
+						pasteReactionRows(rowList, reacIdList, s1, startCol);
 						startRow += LocalConfig.getInstance().getNumberCopiedRows();
 					}
+					System.out.println(rowList);
+					updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());
+					
 				}
 				//if selected area is smaller than copied area, fills in copied area
 				//from first selected cell as upper left
 			} else {
-				try 
-				{ 
-					copiedString = getClipboardContents(GraphicalInterface.this);
-					String[] s1 = copiedString.split("\n");
-					for (int r = 0; r < s1.length; r++) {
-						String[] rowstring = s1[r].split("\t");
-						pasteReactionRow(rowstring, startRow, startCol, r);
-					}
-				} 
-				catch(Exception ex){
-					ex.printStackTrace();
-					System.out.println("Paste error");
-				} 
+				for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
+					System.out.println("r" + (startRow + r));
+					int row = reactionsTable.convertRowIndexToModel(startRow + r);
+					rowList.add(row);
+					int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
+					System.out.println(reacId);
+					reacIdList.add(reacId);
+				}
+				pasteReactionRows(rowList, reacIdList, s1, startCol);
+				System.out.println(rowList);
+				updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			
 			}
-		}
+		}		
 	}
 
-	public void pasteReactionRow(String[] rowstring, int startRow, int startCol, int row) {
-		int viewRow = 0;
-		ArrayList<Integer> idList = new ArrayList<Integer>();
-		ReactionsUpdater updater = new ReactionsUpdater();
-		for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
-			viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow + row);
-			idList.add(viewRow);
-			if (c < rowstring.length) {		
-				reactionsTable.setValueAt(rowstring[c], startRow + row, startCol + c);
-				//updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-			} else {
-				reactionsTable.setValueAt(" ", startRow + row, startCol + c);
-				//updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
+	public void pasteReactionRows(ArrayList<Integer> rowList, ArrayList<Integer> reacIdList, String[] s1, int startCol) {
+		for (int r = 0; r < rowList.size(); r++) {
+			System.out.println(s1[r]);	
+			System.out.println("id" + rowList.get(r));
+			int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(r));
+			System.out.println("view" + viewRow);
+			String[] rowstring = s1[r].split("\t");
+			for (int c = 0; c < rowstring.length; c++) {
+				reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
 			}
-		}
-		updater.updateReactionRows(idList, LocalConfig.getInstance().getLoadedDatabase());
+		}	
 	}
 	
 	public void reactionsClear() {
+		ReactionsUpdater updater = new ReactionsUpdater();
+		ArrayList<Integer> rowList = new ArrayList<Integer>();
+		ArrayList<Integer> reacIdList = new ArrayList<Integer>();
+		
 		int startRow=(reactionsTable.getSelectedRows())[0]; 
 		int startCol=(reactionsTable.getSelectedColumns())[0];
-		try 
-		{ 			
-			for(int i=0; i < reactionsTable.getSelectedRows().length ;i++) 
-			{ 
-				for(int j=0; j < reactionsTable.getSelectedColumns().length ;j++) 
-				{ 
-					int viewRow = 0;
-					if (startRow+i< reactionsTable.getRowCount()  && 
-							startCol+j< reactionsTable.getColumnCount()) 
-						viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(startRow+i);
-					reactionsTable.setValueAt(" ",startRow+i,startCol+j);
-					updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-				} 
-			} 
-		} 
-		catch(Exception ex){
-			//ex.printStackTrace();
-			System.out.println("Clear error");
+		for (int r = 0; r < reactionsTable.getSelectedRows().length; r++) {
+			System.out.println("r" + (startRow + r));
+			int row = reactionsTable.convertRowIndexToModel(startRow + r);
+			rowList.add(row);
+			int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
+			System.out.println(reacId);
+			reacIdList.add(reacId);
 		}
-		reactionsTable.setColumnSelectionAllowed(true);
-		reactionsTable.setRowSelectionAllowed(true);
+		for(int i=0; i < reactionsTable.getSelectedRows().length ;i++) { 
+			for(int j=0; j < reactionsTable.getSelectedColumns().length ;j++) { 					
+				int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(i));
+				System.out.println("view" + viewRow);
+				reactionsTable.setValueAt(" ", viewRow, startCol + j);
+				System.out.println("col" + (startCol + j));
+			} 
+		}
+		System.out.println(rowList);
+		updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			 
 	}
 
 	//only works for one row, if multiple rows, would need to deal with
 	//remainders (see paste - quotient). usually fill is used to fill one
 	//value or row of values, not alternating rows
 	public void reactionsFill(int start, int end) {
-		StringBuffer sbf=new StringBuffer(); 
-		// Check to ensure we have selected only a contiguous block of 
-		// cells 
-		int numcols=reactionsTable.getSelectedColumnCount(); 
-		LocalConfig.getInstance().setNumberCopiedColumns(numcols);
-		int row=reactionsTable.getSelectedRow(); 
-		int[] colsselected=reactionsTable.getSelectedColumns(); 
-		if (!(numcols-1==colsselected[colsselected.length-1]-colsselected[0] && 
-						numcols==colsselected.length)) 
-		{ 
-			JOptionPane.showMessageDialog(null, "Invalid Copy Selection", 
-					"Invalid Copy Selection", 
-					JOptionPane.ERROR_MESSAGE); 
-			return; 
-		} 
-			for (int j=0;j<numcols;j++) 
-			{ 
-				if (reactionsTable.getValueAt(row,colsselected[j]) != null) {
-					sbf.append(reactionsTable.getValueAt(row,colsselected[j]));
-				} else {
-					sbf.append(" ");
-				}
-				if (j<numcols-1) sbf.append("\t"); 
-			} 			
-		setClipboardContents(sbf.toString());
+		
+		reactionsCopy();
+       
 		String copiedString = getClipboardContents(GraphicalInterface.this);
+		//String[] s1 = copiedString.split("\n");
+		ReactionsUpdater updater = new ReactionsUpdater();
+		ArrayList<Integer> rowList = new ArrayList<Integer>();
+		ArrayList<Integer> reacIdList = new ArrayList<Integer>();
 		int startCol=(reactionsTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
-			try 
-			{ 
-				String[] rowstring = copiedString.split("\t");
-				for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
-					int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(r);
-					if (c < rowstring.length) {		
-						reactionsTable.setValueAt(rowstring[c], r, startCol+c);
-						updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					} else {
-						reactionsTable.setValueAt(" ", r, startCol+c);
-						updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					}
-				}
-			} 
-			catch(Exception ex){
-				//ex.printStackTrace();
-				System.out.println("Fill error");
+			System.out.println("r" + r);
+			int row = reactionsTable.convertRowIndexToModel(r);
+			System.out.println("row" + row);
+			rowList.add(row);
+			int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
+			System.out.println(reacId);
+			reacIdList.add(reacId);
+			System.out.println("id" + reacId);
+		}
+		System.out.println(rowList);
+		System.out.println(reacIdList);
+		for (int m = 0; m < rowList.size(); m++) {			
+			System.out.println("id" + rowList.get(m));
+			int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(m));
+			System.out.println("view" + viewRow);
+			String[] rowstring = copiedString.split("\t");
+			for (int c = 0; c < rowstring.length; c++) {
+				reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
 			}
 		}
+		System.out.println(rowList);
+		updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			
 	}
 
 	public void reactionsDeleteRows() {
@@ -4205,16 +4191,7 @@ public class GraphicalInterface extends JFrame {
 							System.out.println(metabId);
 							metabIdList.add(metabId);
 						}
-						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
-							System.out.println(s1[r]);
-							System.out.println("id" + rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
-							int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
-							System.out.println("view" + viewRow);
-							String[] rowstring = s1[r].split("\t");
-							for (int c = 0; c < rowstring.length; c++) {
-								metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
-							}
-						}	
+						pasteMetaboliteRows(rowList, metabIdList, s1, startCol);
 						startRow += LocalConfig.getInstance().getNumberCopiedRows();
 					}
 					System.out.println(rowList);
@@ -4232,22 +4209,26 @@ public class GraphicalInterface extends JFrame {
 					System.out.println(metabId);
 					metabIdList.add(metabId);
 				}
-				for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
-					System.out.println(s1[r]);	
-					System.out.println("id" + rowList.get(r));
-					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(r));
-					System.out.println("view" + viewRow);
-					String[] rowstring = s1[r].split("\t");
-					for (int c = 0; c < rowstring.length; c++) {
-						metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
-					}
-				}	
+				pasteMetaboliteRows(rowList, metabIdList, s1, startCol);
 				System.out.println(rowList);
 				updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
 			}
 		}		
 	}
 
+	public void pasteMetaboliteRows(ArrayList<Integer> rowList, ArrayList<Integer> metabIdList, String[] s1, int startCol) {
+		for (int r = 0; r < rowList.size(); r++) {
+			System.out.println(s1[r]);	
+			System.out.println("id" + rowList.get(r));
+			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(r));
+			System.out.println("view" + viewRow);
+			String[] rowstring = s1[r].split("\t");
+			for (int c = 0; c < rowstring.length; c++) {
+				metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
+			}
+		}	
+	}
+	
 	public void metabolitesClear() {
 		MetabolitesUpdater updater = new MetabolitesUpdater();
 		ArrayList<Integer> rowList = new ArrayList<Integer>();
