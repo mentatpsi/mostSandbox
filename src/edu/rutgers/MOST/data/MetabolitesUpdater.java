@@ -28,79 +28,115 @@ public class MetabolitesUpdater {
 					//if strings contain ' (single quote), it will not execute insert statement
 					//this code escapes ' as '' - sqlite syntax for escaping '
 					String metaboliteAbbreviation = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN);
-					if (metaboliteAbbreviation.contains("'")) {
-						metaboliteAbbreviation = metaboliteAbbreviation.replaceAll("'", "''");
+					if (metaboliteAbbreviation != null) {
+						if (metaboliteAbbreviation.contains("'")) {
+							metaboliteAbbreviation = metaboliteAbbreviation.replaceAll("'", "''");
+						}
 					}
-					System.out.println(metaboliteAbbreviation);
+					
 					String metaboliteName = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_NAME_COLUMN);
-					if (metaboliteName.contains("'")) {
-						metaboliteName = metaboliteName.replaceAll("'", "''");
-					}
+					if (metaboliteName != null) {
+						if (metaboliteName.contains("'")) {
+							metaboliteName = metaboliteName.replaceAll("'", "''");
+						}
+					}					
 					String charge = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.CHARGE_COLUMN);
 					String compartment = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.COMPARTMENT_COLUMN);
-					if (compartment.contains("'")) {
-						compartment = compartment.replaceAll("'", "''");
-					}
+					if (compartment != null) {
+						if (compartment.contains("'")) {
+							compartment = compartment.replaceAll("'", "''");
+						}
+					}					
 					String boundary = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.BOUNDARY_COLUMN);
 					String meta1 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META1_COLUMN);
-					if (meta1.contains("'")) {
-						meta1 = meta1.replaceAll("'", "''");
-					}
+					if (meta1 != null) {
+						if (meta1.contains("'")) {
+							meta1 = meta1.replaceAll("'", "''");
+						}
+					}					
 					String meta2 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META2_COLUMN);
-					if (meta2.contains("'")) {
-						meta2 = meta2.replaceAll("'", "''");
+					if (meta2 != null) {
+						if (meta2.contains("'")) {
+							meta2 = meta2.replaceAll("'", "''");
+						}
 					}
 					String meta3 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META3_COLUMN);
-					if (meta3.contains("'")) {
-						meta3 = meta3.replaceAll("'", "''");
+					if (meta3 != null) {
+						if (meta3.contains("'")) {
+							meta3 = meta3.replaceAll("'", "''");
+						}
 					}
 					String meta4 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META4_COLUMN);
-					if (meta4.contains("'")) {
-						meta4 = meta4.replaceAll("'", "''");
+					if (meta4 != null) {
+						if (meta4.contains("'")) {
+							meta4 = meta4.replaceAll("'", "''");
+						}
 					}
 					String meta5 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META5_COLUMN);
-					if (meta5.contains("'")) {
-						meta5 = meta5.replaceAll("'", "''");
+					if (meta5 != null) {
+						if (meta5.contains("'")) {
+							meta5 = meta5.replaceAll("'", "''");
+						}
 					}
 					String meta6 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META6_COLUMN);
-					if (meta6.contains("'")) {
-						meta6 = meta6.replaceAll("'", "''");
+					if (meta6 != null) {
+						if (meta6.contains("'")) {
+							meta6 = meta6.replaceAll("'", "''");
+						}
 					}
 					String meta7 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META7_COLUMN);
-					if (meta7.contains("'")) {
-						meta7 = meta7.replaceAll("'", "''");
+					if (meta7 != null) {
+						if (meta7.contains("'")) {
+							meta7 = meta7.replaceAll("'", "''");
+						}
 					}
 					String meta8 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META8_COLUMN);
-					if (meta8.contains("'")) {
-						meta8 = meta8.replaceAll("'", "''");
+					if (meta8 != null) {
+						if (meta8.contains("'")) {
+							meta8 = meta8.replaceAll("'", "''");
+						}
 					}
 					String meta9 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META9_COLUMN);
-					if (meta9.contains("'")) {
-						meta9 = meta9.replaceAll("'", "''");
+					if (meta9 != null) {
+						if (meta9.contains("'")) {
+							meta9 = meta9.replaceAll("'", "''");
+						}
 					}
 					String meta10 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META10_COLUMN);
-					if (meta10.contains("'")) {
-						meta10 = meta10.replaceAll("'", "''");
+					if (meta10 != null) {
+						if (meta10.contains("'")) {
+							meta10 = meta10.replaceAll("'", "''");
+						}
 					}
 					String meta11 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META11_COLUMN);
-					if (meta11.contains("'")) {
-						meta11 = meta11.replaceAll("'", "''");
+					if (meta11 != null) {
+						if (meta11.contains("'")) {
+							meta11 = meta11.replaceAll("'", "''");
+						}
 					}
 					String meta12 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META12_COLUMN);
-					if (meta12.contains("'")) {
-						meta12 = meta12.replaceAll("'", "''");
+					if (meta12 != null) {
+						if (meta12.contains("'")) {
+							meta12 = meta12.replaceAll("'", "''");
+						}
 					}
 					String meta13 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META13_COLUMN);
-					if (meta13.contains("'")) {
-						meta13 = meta13.replaceAll("'", "''");
+					if (meta13 != null) {
+						if (meta13.contains("'")) {
+							meta13 = meta13.replaceAll("'", "''");
+						}
 					}
 					String meta14 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META14_COLUMN);
-					if (meta14.contains("'")) {
-						meta14 = meta14.replaceAll("'", "''");
+					if (meta14 != null) {
+						if (meta14.contains("'")) {
+							meta14 = meta14.replaceAll("'", "''");
+						}
 					}
 					String meta15 = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.METABOLITE_META15_COLUMN);
-					if (meta15.contains("'")) {
-						meta15 = meta15.replaceAll("'", "''");
+					if (meta15 != null) {
+						if (meta15.contains("'")) {
+							meta15 = meta15.replaceAll("'", "''");
+						}
 					}
 					String used = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.USED_COLUMN);
 					

@@ -3857,17 +3857,24 @@ public class GraphicalInterface extends JFrame {
 						//and erroneous results. making lists of row numbers and db id's, then inserting 
 						//values into table and db based on these lists solves this problem
 						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
-							System.out.println("r" + (startRow + r));
 							int row = reactionsTable.convertRowIndexToModel(startRow + r);
 							rowList.add(row);
 							int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
-							System.out.println(reacId);
 							reacIdList.add(reacId);
 						}
-						pasteReactionRows(rowList, reacIdList, s1, startCol);
+						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
+							int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
+							String[] rowstring = s1[r].split("\t");
+							for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+								if (c < rowstring.length) {		
+									reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
+								} else {
+									reactionsTable.setValueAt(" ", viewRow, startCol + c);
+								}
+							}
+						}	
 						startRow += LocalConfig.getInstance().getNumberCopiedRows();
 					}
-					System.out.println(rowList);
 					updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());
 					
 				}
@@ -3875,29 +3882,27 @@ public class GraphicalInterface extends JFrame {
 				//from first selected cell as upper left
 			} else {
 				for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
-					System.out.println("r" + (startRow + r));
 					int row = reactionsTable.convertRowIndexToModel(startRow + r);
 					rowList.add(row);
 					int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
-					System.out.println(reacId);
 					reacIdList.add(reacId);
 				}
 				pasteReactionRows(rowList, reacIdList, s1, startCol);
-				System.out.println(rowList);
 				updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			
 			}
 		}		
 	}
 
 	public void pasteReactionRows(ArrayList<Integer> rowList, ArrayList<Integer> reacIdList, String[] s1, int startCol) {
-		for (int r = 0; r < rowList.size(); r++) {
-			System.out.println(s1[r]);	
-			System.out.println("id" + rowList.get(r));
+		for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
 			int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(r));
-			System.out.println("view" + viewRow);
 			String[] rowstring = s1[r].split("\t");
-			for (int c = 0; c < rowstring.length; c++) {
-				reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
+			for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+				if (c < rowstring.length) {		
+					reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
+				} else {
+					reactionsTable.setValueAt(" ", viewRow, startCol + c);
+				}
 			}
 		}	
 	}
@@ -3910,22 +3915,17 @@ public class GraphicalInterface extends JFrame {
 		int startRow=(reactionsTable.getSelectedRows())[0]; 
 		int startCol=(reactionsTable.getSelectedColumns())[0];
 		for (int r = 0; r < reactionsTable.getSelectedRows().length; r++) {
-			System.out.println("r" + (startRow + r));
 			int row = reactionsTable.convertRowIndexToModel(startRow + r);
 			rowList.add(row);
 			int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
-			System.out.println(reacId);
 			reacIdList.add(reacId);
 		}
 		for(int i=0; i < reactionsTable.getSelectedRows().length ;i++) { 
 			for(int j=0; j < reactionsTable.getSelectedColumns().length ;j++) { 					
 				int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(i));
-				System.out.println("view" + viewRow);
 				reactionsTable.setValueAt(" ", viewRow, startCol + j);
-				System.out.println("col" + (startCol + j));
 			} 
 		}
-		System.out.println(rowList);
 		updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			 
 	}
 
@@ -3943,27 +3943,18 @@ public class GraphicalInterface extends JFrame {
 		ArrayList<Integer> reacIdList = new ArrayList<Integer>();
 		int startCol=(reactionsTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
-			System.out.println("r" + r);
 			int row = reactionsTable.convertRowIndexToModel(r);
-			System.out.println("row" + row);
 			rowList.add(row);
 			int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
-			System.out.println(reacId);
 			reacIdList.add(reacId);
-			System.out.println("id" + reacId);
 		}
-		System.out.println(rowList);
-		System.out.println(reacIdList);
 		for (int m = 0; m < rowList.size(); m++) {			
-			System.out.println("id" + rowList.get(m));
 			int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(m));
-			System.out.println("view" + viewRow);
 			String[] rowstring = copiedString.split("\t");
 			for (int c = 0; c < rowstring.length; c++) {
 				reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
 			}
 		}
-		System.out.println(rowList);
 		updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			
 	}
 
@@ -4117,7 +4108,7 @@ public class GraphicalInterface extends JFrame {
 			sbf.append("\n"); 
 		}  
 		setClipboardContents(sbf.toString());
-		System.out.println(sbf.toString());
+		//System.out.println(sbf.toString());
 	}
 	
 	public void metabolitesCopy() {
@@ -4152,7 +4143,12 @@ public class GraphicalInterface extends JFrame {
 				}
 				if (j<numcols-1) sbf.append("\t"); 
 			} 
-			sbf.append("\n"); 
+			sbf.append("\n");
+			/*
+			if (i < numrows - 1) {
+				sbf.append("\n");
+			}
+			*/			 
 		}  
 		setClipboardContents(sbf.toString());
 		//System.out.println(sbf.toString());
@@ -4184,17 +4180,24 @@ public class GraphicalInterface extends JFrame {
 						//and erroneous results. making lists of row numbers and db id's, then inserting 
 						//values into table and db based on these lists solves this problem
 						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
-							System.out.println("r" + (startRow + r));
 							int row = metabolitesTable.convertRowIndexToModel(startRow + r);
 							rowList.add(row);
 							int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
-							System.out.println(metabId);
 							metabIdList.add(metabId);
 						}
-						pasteMetaboliteRows(rowList, metabIdList, s1, startCol);
+						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
+							int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
+							String[] rowstring = s1[r].split("\t");
+							for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+								if (c < rowstring.length) {		
+									metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
+								} else {
+									metabolitesTable.setValueAt(" ", viewRow, startCol + c);
+								}
+							}
+						}	
 						startRow += LocalConfig.getInstance().getNumberCopiedRows();
 					}
-					System.out.println(rowList);
 					updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());
 					
 				}
@@ -4202,29 +4205,27 @@ public class GraphicalInterface extends JFrame {
 				//from first selected cell as upper left
 			} else {
 				for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
-					System.out.println("r" + (startRow + r));
 					int row = metabolitesTable.convertRowIndexToModel(startRow + r);
 					rowList.add(row);
 					int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
-					System.out.println(metabId);
 					metabIdList.add(metabId);
 				}
 				pasteMetaboliteRows(rowList, metabIdList, s1, startCol);
-				System.out.println(rowList);
 				updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
 			}
 		}		
 	}
 
 	public void pasteMetaboliteRows(ArrayList<Integer> rowList, ArrayList<Integer> metabIdList, String[] s1, int startCol) {
-		for (int r = 0; r < rowList.size(); r++) {
-			System.out.println(s1[r]);	
-			System.out.println("id" + rowList.get(r));
+		for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {	
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(r));
-			System.out.println("view" + viewRow);
 			String[] rowstring = s1[r].split("\t");
-			for (int c = 0; c < rowstring.length; c++) {
-				metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
+			for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+				if (c < rowstring.length) {		
+					metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
+				} else {
+					metabolitesTable.setValueAt(" ", viewRow, startCol + c);
+				}				
 			}
 		}	
 	}
@@ -4240,22 +4241,17 @@ public class GraphicalInterface extends JFrame {
 		int startCol=(metabolitesTable.getSelectedColumns())[0];
 		if (startCol != GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN) {
 			for (int r = 0; r < metabolitesTable.getSelectedRows().length; r++) {
-				System.out.println("r" + (startRow + r));
 				int row = metabolitesTable.convertRowIndexToModel(startRow + r);
 				rowList.add(row);
 				int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
-				System.out.println(metabId);
 				metabIdList.add(metabId);
 			}
 			for(int i=0; i < metabolitesTable.getSelectedRows().length ;i++) { 
 				for(int j=0; j < metabolitesTable.getSelectedColumns().length ;j++) { 					
 					int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(i));
-					System.out.println("view" + viewRow);
 					metabolitesTable.setValueAt(" ", viewRow, startCol + j);
-					System.out.println("col" + (startCol + j));
 				} 
 			}
-			System.out.println(rowList);
 			updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
 		} else {
 			System.out.println("Cannot clear Metab abbrev column, some may be used.");
@@ -4278,27 +4274,18 @@ public class GraphicalInterface extends JFrame {
 		ArrayList<Integer> metabIdList = new ArrayList<Integer>();
 		int startCol=(metabolitesTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
-			System.out.println("r" + r);
 			int row = metabolitesTable.convertRowIndexToModel(r);
-			System.out.println("row" + row);
 			rowList.add(row);
 			int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
-			System.out.println(metabId);
 			metabIdList.add(metabId);
-			System.out.println("id" + metabId);
 		}
-		System.out.println(rowList);
-		System.out.println(metabIdList);
 		for (int m = 0; m < rowList.size(); m++) {			
-			System.out.println("id" + rowList.get(m));
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(m));
-			System.out.println("view" + viewRow);
 			String[] rowstring = copiedString.split("\t");
 			for (int c = 0; c < rowstring.length; c++) {
 				metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
 			}
 		}
-		System.out.println(rowList);
 		updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());			
 	}
 
@@ -4313,7 +4300,6 @@ public class GraphicalInterface extends JFrame {
 			int id = (Integer.valueOf((String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN)));
 			deleteIds.add(id);
 		}
-		System.out.println(deleteIds);
 		MetabolitesUpdater updater = new MetabolitesUpdater();
 		updater.deleteRows(deleteIds, LocalConfig.getInstance().getLoadedDatabase());
 		String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
