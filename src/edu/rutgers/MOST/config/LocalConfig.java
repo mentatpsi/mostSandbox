@@ -306,6 +306,8 @@ public class LocalConfig {
 		this.metaboliteIdNameMap = metaboliteIdNameMap;
 	}
 	
+	//used for determining id when adding a metabolite when a reaction is
+	//read and metabolite is not present
 	private static Integer maxMetaboliteId;
 	
 	public void setMaxMetaboliteId(Integer maxMetaboliteId) {
@@ -315,7 +317,7 @@ public class LocalConfig {
 	public Integer getMaxMetaboliteId() {
 		return maxMetaboliteId;
 	}
-	
+
 	//Map used to hold number of reactions a metabolite is used in. if a metabolites
 	//is not present in map, it is unused. Also used when adding, deleting or changing
 	//reactions to determine whether the used status of a metabolite must be changed.

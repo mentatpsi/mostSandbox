@@ -66,6 +66,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import gurobi.GRB;
 import gurobi.GRBException;
@@ -386,6 +388,11 @@ public class GraphicalInterface extends JFrame {
 		mtbColSelectionMode = false;
 		
 		listModel.addElement(GraphicalInterfaceConstants.DEFAULT_DATABASE_NAME);
+		
+		Map<String, Object> metaboliteIdNameMap = new HashMap<String, Object>();
+		LocalConfig.getInstance().setMetaboliteIdNameMap(metaboliteIdNameMap);
+		Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
+		LocalConfig.getInstance().setMetaboliteUsedMap(metaboliteUsedMap);
 		
 		/**************************************************************************/
 		//set up fileList
@@ -1683,8 +1690,9 @@ public class GraphicalInterface extends JFrame {
 					ReactionParser1 parser1 = new ReactionParser1();
 					ArrayList<ArrayList> oldReactionList = parser1.reactionList(tcl.getOldValue());
 					ArrayList<ArrayList> newReactionList = parser1.reactionList(tcl.getNewValue());
-					System.out.println(oldReactionList);
-					System.out.println(newReactionList);
+					System.out.println("old " + oldReactionList);
+					System.out.println("new " + newReactionList);
+					System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
 
 					try {
 						//updates reaction_reactant and reaction_product tables
@@ -1759,9 +1767,27 @@ public class GraphicalInterface extends JFrame {
 		public void actionPerformed(ActionEvent e)
 		{   	  
 			TableCellListener mtcl = (TableCellListener)e.getSource();
-			updateMetabolitesDatabaseRow(mtcl.getRow(), Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 
+			if (mtcl.getColumn() == GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN) { 
+				if (LocalConfig.getInstance().getMetaboliteIdNameMap().containsKey(mtcl.getNewValue())) {
+					System.out.println("Duplicate metabolite");
+				} else {
+					//if a blank is entered remove key/value of old value
+					if (mtcl.getNewValue() == null || mtcl.getNewValue().length() == 0 || mtcl.getNewValue().trim().equals("")) {
+						LocalConfig.getInstance().getMetaboliteIdNameMap().remove(mtcl.getOldValue());
+					} else {
+						LocalConfig.getInstance().getMetaboliteIdNameMap().remove(mtcl.getOldValue());
+						LocalConfig.getInstance().getMetaboliteIdNameMap().put(mtcl.getNewValue(), Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))));
+					}
+					updateMetabolitesDatabaseRow(mtcl.getRow(), Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 
+				} 
+			} else {
+				updateMetabolitesDatabaseRow(mtcl.getRow(), Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 
+			}
+			
 			//System.out.println(mtcl.getRow());
             //System.out.println(Integer.parseInt((String) (metabolitesTable.getModel().getValueAt(mtcl.getRow(), 0))));
+			
+			System.out.println(LocalConfig.getInstance().getMetaboliteIdNameMap());
 		}
 	};
 
@@ -3567,8 +3593,7 @@ public class GraphicalInterface extends JFrame {
 	public void updateMetabolitesDatabaseRow(int rowIndex, Integer metaboliteId, String sourceType, String databaseName)  {
 		try {
 			MetaboliteFactory aFactory = new MetaboliteFactory();
-			SBMLMetabolite aMetabolite = (SBMLMetabolite)aFactory.getMetaboliteById(Integer.parseInt((String) metabolitesTable.getModel().getValueAt(rowIndex, 0)), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 
-
+			SBMLMetabolite aMetabolite = (SBMLMetabolite)aFactory.getMetaboliteById(Integer.parseInt((String) metabolitesTable.getModel().getValueAt(rowIndex, 0)), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 			
 			aMetabolite.setMetaboliteAbbreviation((String) metabolitesTable.getModel().getValueAt(rowIndex, GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN));
 			aMetabolite.setMetaboliteName((String) metabolitesTable.getModel().getValueAt(rowIndex, GraphicalInterfaceConstants.METABOLITE_NAME_COLUMN));
 			aMetabolite.setCharge((String) metabolitesTable.getModel().getValueAt(rowIndex, GraphicalInterfaceConstants.CHARGE_COLUMN));
@@ -4294,6 +4319,9 @@ public class GraphicalInterface extends JFrame {
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(r);
 			int id = (Integer.valueOf((String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN)));
 			deleteIds.add(id);
+			String key = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN);
+			LocalConfig.getInstance().getMetaboliteIdNameMap().remove(key);
+			System.out.println(LocalConfig.getInstance().getMetaboliteIdNameMap());
 		}
 		MetabolitesUpdater updater = new MetabolitesUpdater();
 		updater.deleteRows(deleteIds, LocalConfig.getInstance().getLoadedDatabase());

@@ -4,10 +4,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-
-import javax.swing.text.html.HTMLDocument.Iterator;
-
 import org.sbml.jsbml.*;
 
 import edu.rutgers.MOST.config.LocalConfig;
