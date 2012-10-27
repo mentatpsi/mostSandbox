@@ -4143,12 +4143,7 @@ public class GraphicalInterface extends JFrame {
 				}
 				if (j<numcols-1) sbf.append("\t"); 
 			} 
-			sbf.append("\n");
-			/*
-			if (i < numrows - 1) {
-				sbf.append("\n");
-			}
-			*/			 
+			sbf.append("\n");		 
 		}  
 		setClipboardContents(sbf.toString());
 		//System.out.println(sbf.toString());
