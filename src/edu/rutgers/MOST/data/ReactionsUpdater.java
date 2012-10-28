@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import edu.rutgers.MOST.config.LocalConfig;
+import edu.rutgers.MOST.logic.ReactionParser1;
 import edu.rutgers.MOST.presentation.GraphicalInterface;
 import edu.rutgers.MOST.presentation.GraphicalInterfaceConstants;
 
@@ -238,7 +239,7 @@ public class ReactionsUpdater {
 		
 	}
 	
-	public void deleteRows(ArrayList<Integer> idList, String databaseName) {
+	public void deleteRows(ArrayList<Integer> idList, ArrayList<String> deletedReactions, String databaseName) {
 
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
 		
@@ -270,6 +271,27 @@ public class ReactionsUpdater {
 			e.printStackTrace();
 
 		}
+		
+		ReactionParser1 parser1 = new ReactionParser1();
+		for (int r = 0; r < deletedReactions.size(); r++) {
+			ArrayList<ArrayList> oldReactionList = parser1.reactionList(deletedReactions.get(r));
+			//remove old species from used map
+			for (int x = 0; x < oldReactionList.size(); x++) {
+				for (int y = 0; y < oldReactionList.get(x).size(); y++) {
+					if (((ArrayList) oldReactionList.get(x).get(y)).size() > 1) {
+						System.out.println(((ArrayList) oldReactionList.get(x).get(y)).get(1));
+						int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+						if (usedCount > 1) {
+							LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
+						} else {
+							LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+						}
+					}		
+				}
+			}
+			System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
+		}
+		
 		/*
 		for (int d = 0; d < deleteAbbreviations.size(); d++) {
 			if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(deleteAbbreviations.get(d))) {

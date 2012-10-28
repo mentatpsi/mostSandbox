@@ -1685,7 +1685,7 @@ public class GraphicalInterface extends JFrame {
 					ReactionFactory aFactory = new ReactionFactory();
 
 					SBMLReaction aReaction = (SBMLReaction)aFactory.getReactionById(Integer.parseInt((String) (reactionsTable.getModel().getValueAt(tcl.getRow(), 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					ReactionParser parser = new ReactionParser();
+					//ReactionParser parser = new ReactionParser();
 					
 					ReactionParser1 parser1 = new ReactionParser1();
 					ArrayList<ArrayList> oldReactionList = parser1.reactionList(tcl.getOldValue());
@@ -1693,7 +1693,42 @@ public class GraphicalInterface extends JFrame {
 					System.out.println("old " + oldReactionList);
 					System.out.println("new " + newReactionList);
 					System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
-
+					//remove old species from used map
+					for (int x = 0; x < oldReactionList.size(); x++) {
+						for (int y = 0; y < oldReactionList.get(x).size(); y++) {
+							if (((ArrayList) oldReactionList.get(x).get(y)).size() > 1) {
+								//for (int z = 0; z < ((ArrayList) oldReactionList.get(x).get(y)).size(); z++) {
+								System.out.println(((ArrayList) oldReactionList.get(x).get(y)).get(1));
+								int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+								if (usedCount > 1) {
+									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
+								} else {
+									LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+								}	
+							//}
+							}					
+						}
+					}
+					System.out.println("new");
+					//add new species to used map
+					for (int x = 0; x < newReactionList.size(); x++) {
+						for (int y = 0; y < newReactionList.get(x).size(); y++) {
+							if (((ArrayList) newReactionList.get(x).get(y)).size() > 1) {
+								//for (int z = 0; z < ((ArrayList) oldReactionList.get(x).get(y)).size(); z++) {
+								System.out.println(((ArrayList) newReactionList.get(x).get(y)).get(1));
+								if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey((String) ((ArrayList) newReactionList.get(x).get(y)).get(1))) {
+									int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) newReactionList.get(x).get(y)).get(1));
+									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) newReactionList.get(x).get(y)).get(1), new Integer(usedCount + 1));
+								} else {
+									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) newReactionList.get(x).get(y)).get(1), new Integer(1));
+								}
+						  //}
+							}							
+						}
+					}
+					System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
+					
+					/*
 					try {
 						//updates reaction_reactant and reaction_product tables
 						if (parser.isValid(aReaction.getReactionString())) {
@@ -1742,7 +1777,8 @@ public class GraphicalInterface extends JFrame {
 						}      
 					} catch (Throwable t) {
 						System.out.println("Invalid reaction");
-					}					 		  
+					}	
+					*/				 		  
 				}
 			}
 			//resets metabolite table to show any changed values of used column
@@ -3276,7 +3312,7 @@ public class GraphicalInterface extends JFrame {
 				reactionsTable.getModel().setValueAt("false", viewRow, GraphicalInterfaceConstants.REVERSIBLE_COLUMN);		    		
 			}
 			updateReactionsDatabaseRow(viewRow, Integer.parseInt((String) (reactionsTable.getModel().getValueAt(viewRow, 0))), "SBML", LocalConfig.getInstance().getLoadedDatabase());
-					
+			/*		
 			ReactionParser parser = new ReactionParser();
 			
 			if (parser.isValid(aReaction.getReactionString())) {
@@ -3335,6 +3371,7 @@ public class GraphicalInterface extends JFrame {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			*/
 		}
 	}; 
 
@@ -3989,13 +4026,16 @@ public class GraphicalInterface extends JFrame {
 		int rowIndexEnd = reactionsTable.getSelectionModel().getMaxSelectionIndex();
 		ArrayList<Integer> deleteIds = new ArrayList<Integer>();
 		ArrayList<String> deleteAbbreviations = new ArrayList<String>();
+		ArrayList<String> deletedReactions = new ArrayList<String>();
 		for (int r = rowIndexStart; r <= rowIndexEnd; r++) {
 			int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToModel(r);
 			int id = (Integer.valueOf((String) GraphicalInterface.reactionsTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_REACTIONS_ID_COLUMN)));
 			deleteIds.add(id);
+			String reactionString = (String) GraphicalInterface.reactionsTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
+			deletedReactions.add(reactionString);
 		}
 		ReactionsUpdater updater = new ReactionsUpdater();
-		updater.deleteRows(deleteIds, LocalConfig.getInstance().getLoadedDatabase());
+		updater.deleteRows(deleteIds, deletedReactions, LocalConfig.getInstance().getLoadedDatabase());
 		String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
 		try {
 			Class.forName("org.sqlite.JDBC");
