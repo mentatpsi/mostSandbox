@@ -11,6 +11,7 @@ public class ReactionParser1 {
 	static boolean parse = true;
 
 	public static ArrayList<ArrayList> reactionList(String reactionEquation){
+		reactionEquation = compartmentPrefixRemoved(reactionEquation);
 		ArrayList<ArrayList> reactionList = new ArrayList();
 		ArrayList<String> reactantAndStoicList = new ArrayList();
 		ArrayList<String> productAndStoicList = new ArrayList();
@@ -143,7 +144,7 @@ public class ReactionParser1 {
 	}
 	
 	//removes compartment prefix such as "[c] :"
-	public String compartmentPrefixRemoved(String reactionEquation) {
+	public static String compartmentPrefixRemoved(String reactionEquation) {
 		String correctedReaction = "";
 		if (reactionEquation.startsWith("[") && reactionEquation.indexOf("]") == 2 && reactionEquation.contains(":")) {
 			   correctedReaction = reactionEquation.substring(5, reactionEquation.length()).trim();
