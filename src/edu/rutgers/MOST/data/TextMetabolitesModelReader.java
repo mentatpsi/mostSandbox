@@ -332,6 +332,7 @@ public class TextMetabolitesModelReader {
 					}					
 				}
 				LocalConfig.getInstance().setMetaboliteIdNameMap(metaboliteIdNameMap);
+				System.out.println("id name map " + LocalConfig.getInstance().getMetaboliteIdNameMap());
 				stat.executeUpdate("COMMIT");
 			} catch (Exception e) {
 				stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION

@@ -24,16 +24,6 @@ public class TextReactionsModelReader {
 	
 	boolean addMetaboliteOption = true;
 	
-	public static Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
-	
-	public static Map<String, Object> getMetaboliteUsedMap() {
-		return metaboliteUsedMap;
-	}
-
-	public static void setMetaboliteUsedMap(Map<String, Object> metaboliteUsedMap) {
-		SBMLModelReader.metaboliteUsedMap = metaboliteUsedMap;
-	}
-	
 	public ArrayList<String> columnNamesFromFile(File file, int row) {
 		ArrayList<String> columnNamesFromFile = new ArrayList();
 		
@@ -132,6 +122,8 @@ public class TextReactionsModelReader {
 		int row = 1;
 		int maxMetabId = LocalConfig.getInstance().getMaxMetaboliteId();
 
+		LocalConfig.getInstance().getMetaboliteUsedMap().clear();
+		
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
 
 		try {
@@ -314,13 +306,11 @@ public class TextReactionsModelReader {
 											stat.executeUpdate(insert);
 											String update = "update metabolites set used='true' where id=" + id + ";";
 											stat.executeUpdate(update);
-											if (metaboliteUsedMap.containsKey(reactant)) {
-												int usedCount = (Integer) metaboliteUsedMap.get(reactant);
-												metaboliteUsedMap.put(reactant, new Integer(usedCount + 1));
-												System.out.println(reactant + " " + metaboliteUsedMap.get(reactant));									
+											if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(reactant)) {
+												int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get(reactant);
+												LocalConfig.getInstance().getMetaboliteUsedMap().put(reactant, new Integer(usedCount + 1));									
 											} else {
-												metaboliteUsedMap.put(reactant, new Integer(1));
-												System.out.println(reactant + " " + metaboliteUsedMap.get(reactant));
+												LocalConfig.getInstance().getMetaboliteUsedMap().put(reactant, new Integer(1));
 											}	
 											
 										} else {
@@ -388,13 +378,11 @@ public class TextReactionsModelReader {
 											stat.executeUpdate(insert);	
 											String update = "update metabolites set used='true' where id=" + id + ";";
 											stat.executeUpdate(update);
-											if (metaboliteUsedMap.containsKey(product)) {
-												int usedCount = (Integer) metaboliteUsedMap.get(product);
-												metaboliteUsedMap.put(product, new Integer(usedCount + 1));
-												System.out.println(product + " " + metaboliteUsedMap.get(product));									
+											if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(product)) {
+												int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get(product);
+												LocalConfig.getInstance().getMetaboliteUsedMap().put(product, new Integer(usedCount + 1));									
 											} else {
-												metaboliteUsedMap.put(product, new Integer(1));
-												System.out.println(product + " " + metaboliteUsedMap.get(product));
+												LocalConfig.getInstance().getMetaboliteUsedMap().put(product, new Integer(1));
 											}
 											
 										} else {
@@ -560,9 +548,7 @@ public class TextReactionsModelReader {
 
 			conn.close();
 			LocalConfig.getInstance().setProgress(100);	
-			LocalConfig.getInstance().setMetaboliteUsedMap(metaboliteUsedMap);
-			System.out.println(metaboliteUsedMap);
-			System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
+			System.out.println("used map " + LocalConfig.getInstance().getMetaboliteUsedMap());
 
 		}catch(SQLException e){
 

@@ -279,19 +279,19 @@ public class ReactionsUpdater {
 			for (int x = 0; x < oldReactionList.size(); x++) {
 				for (int y = 0; y < oldReactionList.get(x).size(); y++) {
 					if (((ArrayList) oldReactionList.get(x).get(y)).size() > 1) {
-						System.out.println(((ArrayList) oldReactionList.get(x).get(y)).get(1));
-						int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
-						if (usedCount > 1) {
-							LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
-						} else {
-							LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
-						}
+						if (LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1)) != null) {
+							int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+							if (usedCount > 1) {
+								LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
+							} else {
+								LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+							}
+						}			
 					}		
 				}
 			}
-			System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
 		}
-		
+		System.out.println("del used map" + LocalConfig.getInstance().getMetaboliteUsedMap());
 		/*
 		for (int d = 0; d < deleteAbbreviations.size(); d++) {
 			if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(deleteAbbreviations.get(d))) {

@@ -1680,6 +1680,8 @@ public class GraphicalInterface extends JFrame {
 			
             if (tcl.getColumn() == GraphicalInterfaceConstants.REACTION_STRING_COLUMN) {  
 				if (tcl.getOldValue() != tcl.getNewValue()) {
+					//if reaction is changed unhighlight unused metabolites since
+					//used status may change
 					highlightUnusedMetabolites = false;
 					highlightUnusedMetabolitesItem.setState(false);
 					ReactionFactory aFactory = new ReactionFactory();
@@ -1690,43 +1692,41 @@ public class GraphicalInterface extends JFrame {
 					ReactionParser1 parser1 = new ReactionParser1();
 					ArrayList<ArrayList> oldReactionList = parser1.reactionList(tcl.getOldValue());
 					ArrayList<ArrayList> newReactionList = parser1.reactionList(tcl.getNewValue());
-					System.out.println("old " + oldReactionList);
-					System.out.println("new " + newReactionList);
+					System.out.println("ra old " + oldReactionList);
+					System.out.println("ra new " + newReactionList);
 					System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
 					//remove old species from used map
 					for (int x = 0; x < oldReactionList.size(); x++) {
 						for (int y = 0; y < oldReactionList.get(x).size(); y++) {
 							if (((ArrayList) oldReactionList.get(x).get(y)).size() > 1) {
-								//for (int z = 0; z < ((ArrayList) oldReactionList.get(x).get(y)).size(); z++) {
-								System.out.println(((ArrayList) oldReactionList.get(x).get(y)).get(1));
-								int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
-								if (usedCount > 1) {
-									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
-								} else {
-									LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
-								}	
-							//}
+								if (LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1)) != null) {
+									int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+									if (usedCount > 1) {
+										LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
+									} else {
+										LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+									}
+								}			
 							}					
 						}
 					}
-					System.out.println("new");
+
 					//add new species to used map
 					for (int x = 0; x < newReactionList.size(); x++) {
 						for (int y = 0; y < newReactionList.get(x).size(); y++) {
 							if (((ArrayList) newReactionList.get(x).get(y)).size() > 1) {
-								//for (int z = 0; z < ((ArrayList) oldReactionList.get(x).get(y)).size(); z++) {
-								System.out.println(((ArrayList) newReactionList.get(x).get(y)).get(1));
 								if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey((String) ((ArrayList) newReactionList.get(x).get(y)).get(1))) {
-									int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) newReactionList.get(x).get(y)).get(1));
-									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) newReactionList.get(x).get(y)).get(1), new Integer(usedCount + 1));
+									if (LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) newReactionList.get(x).get(y)).get(1)) != null) {
+										int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) newReactionList.get(x).get(y)).get(1));
+										LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) newReactionList.get(x).get(y)).get(1), new Integer(usedCount + 1));
+									}									
 								} else {
 									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) newReactionList.get(x).get(y)).get(1), new Integer(1));
 								}
-						  //}
 							}							
 						}
 					}
-					System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
+					System.out.println("ra updated " + LocalConfig.getInstance().getMetaboliteUsedMap());
 					
 					/*
 					try {
@@ -1780,20 +1780,6 @@ public class GraphicalInterface extends JFrame {
 					}	
 					*/				 		  
 				}
-			}
-			//resets metabolite table to show any changed values of used column
-			//probably not necessary since this column is not visible
-			String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
-			try {
-				Class.forName("org.sqlite.JDBC");
-				Connection con = DriverManager.getConnection(fileString);
-				setUpMetabolitesTable(con);
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	};
@@ -4021,7 +4007,6 @@ public class GraphicalInterface extends JFrame {
 	}
 
 	public void reactionsDeleteRows() {
-		//TODO: need to account for deleted reactions - used status
 		int rowIndexStart = reactionsTable.getSelectedRow();
 		int rowIndexEnd = reactionsTable.getSelectionModel().getMaxSelectionIndex();
 		ArrayList<Integer> deleteIds = new ArrayList<Integer>();
@@ -4033,7 +4018,9 @@ public class GraphicalInterface extends JFrame {
 			deleteIds.add(id);
 			String reactionString = (String) GraphicalInterface.reactionsTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
 			deletedReactions.add(reactionString);
+			
 		}
+		
 		ReactionsUpdater updater = new ReactionsUpdater();
 		updater.deleteRows(deleteIds, deletedReactions, LocalConfig.getInstance().getLoadedDatabase());
 		String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";

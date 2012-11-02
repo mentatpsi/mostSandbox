@@ -58,6 +58,7 @@ public class SBMLModelReader {
 		SBMLModelReader.metaboliteIdNameMap = metaboliteIdNameMap;
 	}
 	
+	/*
     public static Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
 	
 	public static Map<String, Object> getMetaboliteUsedMap() {
@@ -67,10 +68,14 @@ public class SBMLModelReader {
 	public static void setMetaboliteUsedMap(Map<String, Object> metaboliteUsedMap) {
 		SBMLModelReader.metaboliteUsedMap = metaboliteUsedMap;
 	}
+	*/
 
 	@SuppressWarnings("unchecked")
 	public void load(){
 		readNotes = true;
+		
+		LocalConfig.getInstance().getMetaboliteUsedMap().clear();
+		
 		DatabaseCreator databaseCreator = new DatabaseCreator();
 		databaseCreator.createDatabase(getDatabaseName());
 
@@ -261,6 +266,9 @@ public class SBMLModelReader {
 						+ " (" + "'" + metaboliteAbbreviation + "', '" + metaboliteName + "', '" + chargeString + "', '" + compartment + "', '" + boundary + "', '" + metabMeta1 + "', '" + metabMeta2 + "', '" + metabMeta3 + "', '" + metabMeta4 + "', '" + metabMeta5 + "', '" + metabMeta6 + "', '" + metabMeta7 + "', '" + metabMeta8 + "', '" + metabMeta9 + "', '" + metabMeta10 + "', '" + metabMeta11 + "', '" + metabMeta12 + "', '" + metabMeta13 + "', '" + metabMeta14 + "', '" + metabMeta15 + "', '" + used + "');";
 					stat.executeUpdate(metabInsert);	
 				}
+				LocalConfig.getInstance().setMetaboliteIdNameMap(metaboliteIdNameMap);
+				System.out.println("id name map " + LocalConfig.getInstance().getMetaboliteIdNameMap());
+								
 				ListOf<Reaction> reactions = doc.getModel().getListOfReactions();
 				for (int j = 0; j < reactions.size(); j++) {
 					if (j%10 == 0) {
@@ -287,13 +295,11 @@ public class SBMLModelReader {
 								stat.executeUpdate(rrInsert);
 								String update = "update metabolites set used='true' where id=" + id + ";";
 								stat.executeUpdate(update);	
-								if (metaboliteUsedMap.containsKey(reactants.get(r).getSpecies())) {
-									int usedCount = (Integer) metaboliteUsedMap.get(reactants.get(r).getSpecies());
-									metaboliteUsedMap.put(reactants.get(r).getSpecies(), new Integer(usedCount + 1));
-									System.out.println(reactants.get(r).getSpecies() + " " + metaboliteUsedMap.get(reactants.get(r).getSpecies()));									
+								if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(reactants.get(r).getSpecies())) {
+									int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get(reactants.get(r).getSpecies());
+									LocalConfig.getInstance().getMetaboliteUsedMap().put(reactants.get(r).getSpecies(), new Integer(usedCount + 1));
 								} else {
-									metaboliteUsedMap.put(reactants.get(r).getSpecies(), new Integer(1));
-									System.out.println(reactants.get(r).getSpecies() + " " + metaboliteUsedMap.get(reactants.get(r).getSpecies()));
+									LocalConfig.getInstance().getMetaboliteUsedMap().put(reactants.get(r).getSpecies(), new Integer(1));
 								}					
 							}
 							
@@ -333,13 +339,11 @@ public class SBMLModelReader {
 								stat.executeUpdate(rpInsert);
 								String update = "update metabolites set used='true' where id=" + id + ";";
 								stat.executeUpdate(update);
-								if (metaboliteUsedMap.containsKey(products.get(p).getSpecies())) {
-									int usedCount = (Integer) metaboliteUsedMap.get(products.get(p).getSpecies());
-									metaboliteUsedMap.put(products.get(p).getSpecies(), new Integer(usedCount + 1));
-									System.out.println(products.get(p).getSpecies() + " " + metaboliteUsedMap.get(products.get(p).getSpecies()));									
+								if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(products.get(p).getSpecies())) {
+									int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get(products.get(p).getSpecies());
+									LocalConfig.getInstance().getMetaboliteUsedMap().put(products.get(p).getSpecies(), new Integer(usedCount + 1));
 								} else {
-									metaboliteUsedMap.put(products.get(p).getSpecies(), new Integer(1));
-									System.out.println(products.get(p).getSpecies() + " " + metaboliteUsedMap.get(products.get(p).getSpecies()));
+									LocalConfig.getInstance().getMetaboliteUsedMap().put(products.get(p).getSpecies(), new Integer(1));
 								}		
 							}
 													
@@ -554,9 +558,7 @@ public class SBMLModelReader {
 
 			conn.close();
 			LocalConfig.getInstance().setProgress(100);	
-			LocalConfig.getInstance().setMetaboliteUsedMap(metaboliteUsedMap);
-			System.out.println(metaboliteUsedMap);
-			System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
+			System.out.println("used map " + LocalConfig.getInstance().getMetaboliteUsedMap());
 			
 		}catch(SQLException e){
 
