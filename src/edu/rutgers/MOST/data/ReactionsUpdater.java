@@ -2,9 +2,12 @@ package edu.rutgers.MOST.data;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 import edu.rutgers.MOST.config.LocalConfig;
 import edu.rutgers.MOST.logic.ReactionParser1;
@@ -239,6 +242,121 @@ public class ReactionsUpdater {
 		
 	}
 	
+	public void updateReactionEquations(int id, String oldEquation, String newEquation, String databaseName) {
+
+		ReactionParser1 parser1 = new ReactionParser1();
+
+		String queryString = "jdbc:sqlite:" + databaseName + ".db";
+
+		try{
+			Connection conn =
+				DriverManager.getConnection(queryString);
+			Statement stat = conn.createStatement();		
+
+			//update for old reaction
+			if (parser1.isValid(oldEquation)) {
+				ArrayList<ArrayList> oldReactionList = parser1.reactionList(oldEquation);
+
+				//remove old species from used map
+				for (int x = 0; x < oldReactionList.size(); x++) {
+					System.out.println("ru old " + oldReactionList.get(x));
+					for (int y = 0; y < oldReactionList.get(x).size(); y++) {
+						System.out.println("ru old " + oldReactionList.get(x));
+						if (((ArrayList) oldReactionList.get(x).get(y)).size() > 1) {
+							if (LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1)) != null) {
+								int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+								if (usedCount > 1) {
+									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
+								} else {
+									LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+								}
+							}			
+						}					
+					}
+				}
+			}
+
+			try {
+				stat.executeUpdate("BEGIN TRANSACTION");
+
+				String rrUpdate = "delete from reaction_reactants where reaction_id=" + id + ";";				
+				stat.executeUpdate(rrUpdate);
+				String rpUpdate = "delete from reaction_products where reaction_id=" + id + ";";				
+				stat.executeUpdate(rrUpdate);				
+				stat.executeUpdate("COMMIT");
+			} catch (Exception e) {
+				e.printStackTrace();
+				stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION
+			}
+
+			if (parser1.isValid(newEquation)) {
+				ArrayList<ArrayList> newReactionList = parser1.reactionList(newEquation);
+
+				System.out.println("ru new " + LocalConfig.getInstance().getMetaboliteUsedMap());
+				//add new species to used map
+				for (int x = 0; x < newReactionList.size(); x++) {
+					System.out.println("ru new " + newReactionList.get(x));
+					for (int y = 0; y < newReactionList.get(x).size(); y++) {
+						if (((ArrayList) newReactionList.get(x).get(y)).size() > 1) {
+
+							/*
+						try {
+							conn = DriverManager.getConnection(queryString);  
+
+							PreparedStatement prep = conn
+							.prepareStatement("insert into reaction_reactants (reaction_id, metabolite_id, stoic) values (?, (select id from metabolites where metabolite_abbreviation = ?), ?);");
+							prep.setInt(1, id);
+							prep.setString(2, this.getMetaboliteAbbreviation());
+							prep.setDouble(3, Integer.parseInt((String) ((ArrayList) newReactionList.get(x).get(y)).get(0)));
+							conn.setAutoCommit(true);
+							prep.executeUpdate();
+
+							conn.close();
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+							 */
+							if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey((String) ((ArrayList) newReactionList.get(x).get(y)).get(1))) {
+								if (LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) newReactionList.get(x).get(y)).get(1)) != null) {
+									int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) newReactionList.get(x).get(y)).get(1));
+									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) newReactionList.get(x).get(y)).get(1), new Integer(usedCount + 1));
+								}									
+							} else {
+								LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) newReactionList.get(x).get(y)).get(1), new Integer(1));
+							}
+							try {
+								stat.executeUpdate("BEGIN TRANSACTION");
+								Integer metabId = (Integer) LocalConfig.getInstance().getMetaboliteIdNameMap().get((String) ((ArrayList) newReactionList.get(x).get(y)).get(1));
+								String stoic = ((String) ((ArrayList) newReactionList.get(x).get(y)).get(0));
+								if (x == 0) {//reactants
+									String rrUpdate = "insert into reaction_reactants (reaction_id, metabolite_id, stoic) values (" + id + ", " + metabId + ", " + stoic + ");";				
+									stat.executeUpdate(rrUpdate);				
+								}
+								if (x == 1) {//products
+									String rpUpdate = "insert into reaction_products (reaction_id, metabolite_id, stoic) values (" + id + ", " + metabId + ", " + stoic + ");";	
+									stat.executeUpdate(rpUpdate);
+								}
+								
+												
+								stat.executeUpdate("COMMIT");
+							} catch (Exception e) {
+								e.printStackTrace();
+								stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION
+							}
+						}							
+					}
+				}
+				
+			}
+		}catch(SQLException e){
+
+			e.printStackTrace();
+
+		}
+
+	}
+	
 	public void deleteRows(ArrayList<Integer> idList, ArrayList<String> deletedReactions, String databaseName) {
 
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
@@ -273,40 +391,28 @@ public class ReactionsUpdater {
 		}
 		
 		ReactionParser1 parser1 = new ReactionParser1();
+		
 		for (int r = 0; r < deletedReactions.size(); r++) {
-			ArrayList<ArrayList> oldReactionList = parser1.reactionList(deletedReactions.get(r));
-			//remove old species from used map
-			for (int x = 0; x < oldReactionList.size(); x++) {
-				for (int y = 0; y < oldReactionList.get(x).size(); y++) {
-					if (((ArrayList) oldReactionList.get(x).get(y)).size() > 1) {
-						if (LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1)) != null) {
-							int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
-							if (usedCount > 1) {
-								LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
-							} else {
-								LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
-							}
-						}			
-					}		
+			if (parser1.isValid(deletedReactions.get(r))) {
+				ArrayList<ArrayList> oldReactionList = parser1.reactionList(deletedReactions.get(r));
+				//remove old species from used map
+				for (int x = 0; x < oldReactionList.size(); x++) {
+					for (int y = 0; y < oldReactionList.get(x).size(); y++) {
+						if (((ArrayList) oldReactionList.get(x).get(y)).size() > 1) {
+							if (LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1)) != null) {
+								int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+								if (usedCount > 1) {
+									LocalConfig.getInstance().getMetaboliteUsedMap().put((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1), new Integer(usedCount - 1));
+								} else {
+									LocalConfig.getInstance().getMetaboliteUsedMap().remove((String) ((ArrayList) oldReactionList.get(x).get(y)).get(1));
+								}
+							}			
+						}		
+					}
 				}
-			}
+			}			
 		}
 		System.out.println("del used map" + LocalConfig.getInstance().getMetaboliteUsedMap());
-		/*
-		for (int d = 0; d < deleteAbbreviations.size(); d++) {
-			if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(deleteAbbreviations.get(d))) {
-				int usedCount = (Integer) LocalConfig.getInstance().getMetaboliteUsedMap().get(deleteAbbreviations.get(d));
-				if (usedCount > 1) {
-					LocalConfig.getInstance().getMetaboliteUsedMap().put(deleteAbbreviations.get(d), new Integer(usedCount + 1));
-					System.out.println(deleteAbbreviations.get(d) + " " + LocalConfig.getInstance().getMetaboliteUsedMap().get(deleteAbbreviations.get(d)));									
-				} else {
-					LocalConfig.getInstance().getMetaboliteUsedMap().remove(deleteAbbreviations.get(d));
-				}				
-			} 
-		}
-		System.out.println(LocalConfig.getInstance().getMetaboliteUsedMap());
-		*/
-		
 	}
 	
 }
