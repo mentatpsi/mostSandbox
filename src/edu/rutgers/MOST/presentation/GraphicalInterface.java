@@ -3753,8 +3753,8 @@ public class GraphicalInterface extends JFrame {
 				if (LocalConfig.getInstance().getNumberCopiedRows() > 0) {
 					//if selected area is larger than copied area, it will fill the same cell
 					//contents repeatedly until end of selection, based on integer division
-					//with no remainder
 					int quotient = reactionsTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
+					int remainder = reactionsTable.getSelectedRows().length%LocalConfig.getInstance().getNumberCopiedRows();
 					for (int q = 0; q < quotient; q++) {	
 						//there are two for loops since when pasting into a sorted column the column  
 						//sorts itself for each value inserted into table, causing row numbers to change 
@@ -3765,6 +3765,8 @@ public class GraphicalInterface extends JFrame {
 							rowList.add(row);
 							int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
 							reacIdList.add(reacId);
+							String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
+							System.out.println("q " + oldReaction);
 						}
 						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
 							int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
@@ -3777,10 +3779,29 @@ public class GraphicalInterface extends JFrame {
 								}
 							}
 						}	
-						startRow += LocalConfig.getInstance().getNumberCopiedRows();
+						startRow += LocalConfig.getInstance().getNumberCopiedRows();					
+					}
+					for (int m = 0; m < remainder; m++) {
+						int row = reactionsTable.convertRowIndexToModel(startRow + m);
+						rowList.add(row);
+						int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
+						reacIdList.add(reacId);
+						String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
+						System.out.println(oldReaction);						
+					}
+					int remainderStartIndex = rowList.size() - remainder;
+					for (int m = 0; m < remainder; m++) {
+						int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(remainderStartIndex + m));
+						String[] rowstring = s1[m].split("\t");
+						for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+							if (c < rowstring.length) {		
+								reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
+							} else {
+								reactionsTable.setValueAt(" ", viewRow, startCol + c);
+							}
+						}
 					}
 					updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());
-					
 				}
 				//if selected area is smaller than copied area, fills in copied area
 				//from first selected cell as upper left
@@ -3790,6 +3811,8 @@ public class GraphicalInterface extends JFrame {
 					rowList.add(row);
 					int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
 					reacIdList.add(reacId);
+					String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
+					System.out.println(oldReaction);
 				}
 				pasteReactionRows(rowList, reacIdList, s1, startCol);
 				updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			
@@ -4075,8 +4098,8 @@ public class GraphicalInterface extends JFrame {
 				if (LocalConfig.getInstance().getNumberCopiedRows() > 0) {
 					//if selected area is larger than copied area, it will fill the same cell
 					//contents repeatedly until end of selection, based on integer division
-					//with no remainder
 					int quotient = metabolitesTable.getSelectedRows().length/LocalConfig.getInstance().getNumberCopiedRows();
+					int remainder = metabolitesTable.getSelectedRows().length%LocalConfig.getInstance().getNumberCopiedRows();
 					for (int q = 0; q < quotient; q++) {	
 						//there are two for loops since when pasting into a sorted column the column  
 						//sorts itself for each value inserted into table, causing row numbers to change 
@@ -4100,6 +4123,24 @@ public class GraphicalInterface extends JFrame {
 							}
 						}	
 						startRow += LocalConfig.getInstance().getNumberCopiedRows();
+					}
+					for (int m = 0; m < remainder; m++) {
+						int row = metabolitesTable.convertRowIndexToModel(startRow + m);
+						rowList.add(row);
+						int metabId = Integer.valueOf((String) metabolitesTable.getModel().getValueAt(row, 0));
+						metabIdList.add(metabId);						
+					}
+					int remainderStartIndex = rowList.size() - remainder;
+					for (int m = 0; m < remainder; m++) {
+						int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToView(rowList.get(remainderStartIndex + m));
+						String[] rowstring = s1[m].split("\t");
+						for (int c = 0; c < LocalConfig.getInstance().getNumberCopiedColumns(); c++) {
+							if (c < rowstring.length) {		
+								metabolitesTable.setValueAt(rowstring[c], viewRow, startCol + c);
+							} else {
+								metabolitesTable.setValueAt(" ", viewRow, startCol + c);
+							}
+						}
 					}
 					updater.updateMetaboliteRows(rowList, metabIdList, LocalConfig.getInstance().getLoadedDatabase());
 					

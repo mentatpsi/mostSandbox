@@ -29,9 +29,12 @@ public class ReactionsUpdater {
 
 				for (int i = 0; i < rowList.size(); i++) {
 					
-					String knockout = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.KO_COLUMN);
-					if (knockout.length() == 0) {
-						knockout = GraphicalInterfaceConstants.KO_DEFAULT;
+					String knockout = "false";
+					if (GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.KO_COLUMN) != null) {
+						knockout = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.KO_COLUMN);
+						if (knockout.length() == 0) {
+							knockout = GraphicalInterfaceConstants.KO_DEFAULT;
+						}
 					}
 					Double fluxValue = GraphicalInterfaceConstants.FLUX_VALUE_DEFAULT;
 					if (GraphicalInterface.reactionsTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.FLUX_VALUE_COLUMN) != null) {
@@ -61,13 +64,13 @@ public class ReactionsUpdater {
 					} else {
 						reactionName = " ";
 					}
-					String reactionString = (String) GraphicalInterface.reactionsTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
-					if (reactionString != null) {
-						if (reactionString.contains("'")) {
-							reactionString = reactionString.replaceAll("'", "''");
+					String reactionEquation = (String) GraphicalInterface.reactionsTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
+					if (reactionEquation != null) {
+						if (reactionEquation.contains("'")) {
+							reactionEquation = reactionEquation.replaceAll("'", "''");
 						}
 					} else {
-						reactionString = " ";
+						reactionEquation = " ";
 					}
 					String reversible = (String) GraphicalInterface.reactionsTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.REVERSIBLE_COLUMN);
 					
@@ -221,7 +224,7 @@ public class ReactionsUpdater {
 					}
 	
 					String update = "update reactions set knockout='" + knockout + "', flux_value=" + fluxValue + ", reaction_abbreviation='" + reactionAbbreviation + "', reaction_name='" + reactionName + "', "
-					 	+ " reaction_string='" + reactionString + "', reversible='" + reversible + "', lower_bound=" + lowerBound + ", upper_bound=" + upperBound + ", biological_objective=" + objective + ", "
+					 	+ " reaction_string='" + reactionEquation + "', reversible='" + reversible + "', lower_bound=" + lowerBound + ", upper_bound=" + upperBound + ", biological_objective=" + objective + ", "
 						+ " meta_1='" + meta1 + "', meta_2='" + meta2 + "', meta_3='" + meta3 + "', meta_4='" + meta4 + "', meta_5='" + meta5 + "', "
 						+ " meta_6='" + meta6 + "', meta_7='" + meta7 + "', meta_8='" + meta8 + "', meta_9='" + meta9 + "', meta_10='" + meta10 + "', "
 						+ " meta_11='" + meta11 + "', meta_12='" + meta12 + "', meta_13='" + meta13 + "', meta_14='" + meta14 + "', meta_15='" + meta15 + "' where id=" + reacIdList.get(i) + ";";
