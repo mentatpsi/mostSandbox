@@ -147,6 +147,14 @@ public class TextReactionsModelReader {
 					+ " meta_10 varchar(500), meta_11 varchar(500), meta_12 varchar(500), "
 					+ " meta_13 varchar(500), meta_14 varchar(500), meta_15 varchar(500));");
 			
+			stat.executeUpdate("drop table if exists reaction_reactants;");
+			stat.executeUpdate("CREATE TABLE reaction_reactants (reaction_id INTEGER, " 
+					+ " metabolite_id INTEGER, stoic FLOAT);");
+
+			stat.executeUpdate("drop table if exists reaction_products;");
+			stat.executeUpdate("CREATE TABLE reaction_products (reaction_id INTEGER, " 
+					+ " metabolite_id INTEGER, stoic FLOAT);");
+			
 			CSVReader reader;
 			try {
 				reader = new CSVReader(new FileReader(file), GraphicalInterface.getSplitCharacter());

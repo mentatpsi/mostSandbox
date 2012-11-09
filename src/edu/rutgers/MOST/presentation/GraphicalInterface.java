@@ -394,6 +394,8 @@ public class GraphicalInterface extends JFrame {
 		Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
 		LocalConfig.getInstance().setMetaboliteUsedMap(metaboliteUsedMap);
 		
+		LocalConfig.getInstance().setMaxMetaboliteId(0);
+		
 		/**************************************************************************/
 		//set up fileList
 		/**************************************************************************/
@@ -1369,8 +1371,7 @@ public class GraphicalInterface extends JFrame {
 	class SaveCSVMetabolitesItemAction implements ActionListener {
 		public void actionPerformed(ActionEvent ae) {
 			setSplitCharacter(',');
-			saveMetabolitesTextFileChooser(); 	  
-		}
+			saveMetabolitesTextFileChooser(); 	  		}
 	}
 
 	public void saveMetabolitesTextFile(String path, String filename) {
@@ -1693,7 +1694,20 @@ public class GraphicalInterface extends JFrame {
 					ReactionsUpdater updater = new ReactionsUpdater();
 					updater.updateReactionEquations(id, tcl.getOldValue(), tcl.getNewValue(), LocalConfig.getInstance().getLoadedDatabase());
 					
-					System.out.println("ra updated " + LocalConfig.getInstance().getMetaboliteUsedMap());		 		  
+					System.out.println("ra updated " + LocalConfig.getInstance().getMetaboliteUsedMap());
+					String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
+					try {
+						Class.forName("org.sqlite.JDBC");
+						Connection con = DriverManager.getConnection(fileString);
+						setUpMetabolitesTable(con);
+						setUpReactionsTable(con);
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
 				}
 			}
 		}
@@ -3741,6 +3755,7 @@ public class GraphicalInterface extends JFrame {
 		ReactionsUpdater updater = new ReactionsUpdater();
 		ArrayList<Integer> rowList = new ArrayList<Integer>();
 		ArrayList<Integer> reacIdList = new ArrayList<Integer>();
+		ArrayList<String> oldReactionsList = new ArrayList<String>();
 		String copiedString = getClipboardContents(GraphicalInterface.this);
 		String[] s1 = copiedString.split("\n");
 		int startRow = (reactionsTable.getSelectedRows())[0];
@@ -3766,7 +3781,8 @@ public class GraphicalInterface extends JFrame {
 							int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
 							reacIdList.add(reacId);
 							String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
-							System.out.println("q " + oldReaction);
+							System.out.println("rxn paste " + oldReaction);
+							oldReactionsList.add(oldReaction);
 						}
 						for (int r = 0; r < LocalConfig.getInstance().getNumberCopiedRows(); r++) {
 							int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(q * LocalConfig.getInstance().getNumberCopiedRows() + r));
@@ -3787,7 +3803,8 @@ public class GraphicalInterface extends JFrame {
 						int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
 						reacIdList.add(reacId);
 						String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
-						System.out.println(oldReaction);						
+						System.out.println("rxn paste " + oldReaction);
+						oldReactionsList.add(oldReaction);
 					}
 					int remainderStartIndex = rowList.size() - remainder;
 					for (int m = 0; m < remainder; m++) {
@@ -3801,7 +3818,7 @@ public class GraphicalInterface extends JFrame {
 							}
 						}
 					}
-					updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());
+					updater.updateReactionRows(rowList, reacIdList, oldReactionsList, LocalConfig.getInstance().getLoadedDatabase());
 				}
 				//if selected area is smaller than copied area, fills in copied area
 				//from first selected cell as upper left
@@ -3812,10 +3829,10 @@ public class GraphicalInterface extends JFrame {
 					int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
 					reacIdList.add(reacId);
 					String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
-					System.out.println(oldReaction);
+					System.out.println("rxn paste " + oldReaction);
 				}
 				pasteReactionRows(rowList, reacIdList, s1, startCol);
-				updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			
+				updater.updateReactionRows(rowList, reacIdList, oldReactionsList, LocalConfig.getInstance().getLoadedDatabase());			
 			}
 		}		
 	}
@@ -3835,9 +3852,11 @@ public class GraphicalInterface extends JFrame {
 	}
 	
 	public void reactionsClear() {
+		//TODO: add if column is reactionEquations add to oldReactionsList
 		ReactionsUpdater updater = new ReactionsUpdater();
 		ArrayList<Integer> rowList = new ArrayList<Integer>();
 		ArrayList<Integer> reacIdList = new ArrayList<Integer>();
+		ArrayList<String> oldReactionsList = new ArrayList<String>();
 		
 		int startRow=(reactionsTable.getSelectedRows())[0]; 
 		int startCol=(reactionsTable.getSelectedColumns())[0];
@@ -3846,6 +3865,9 @@ public class GraphicalInterface extends JFrame {
 			rowList.add(row);
 			int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
 			reacIdList.add(reacId);
+			String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
+			System.out.println("rxn clear " + oldReaction);
+			oldReactionsList.add(oldReaction);
 		}
 		for(int i=0; i < reactionsTable.getSelectedRows().length ;i++) { 
 			for(int j=0; j < reactionsTable.getSelectedColumns().length ;j++) { 					
@@ -3853,14 +3875,14 @@ public class GraphicalInterface extends JFrame {
 				reactionsTable.setValueAt(" ", viewRow, startCol + j);
 			} 
 		}
-		updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			 
+		updater.updateReactionRows(rowList, reacIdList, oldReactionsList, LocalConfig.getInstance().getLoadedDatabase());	
 	}
 
 	//only works for one row, if multiple rows, would need to deal with
 	//remainders (see paste - quotient). usually fill is used to fill one
 	//value or row of values, not alternating rows
 	public void reactionsFill(int start, int end) {
-		
+		//TODO: add if column is reactionEquations add to oldReactionsList
 		reactionsCopy();
        
 		String copiedString = getClipboardContents(GraphicalInterface.this);
@@ -3868,12 +3890,16 @@ public class GraphicalInterface extends JFrame {
 		ReactionsUpdater updater = new ReactionsUpdater();
 		ArrayList<Integer> rowList = new ArrayList<Integer>();
 		ArrayList<Integer> reacIdList = new ArrayList<Integer>();
+		ArrayList<String> oldReactionsList = new ArrayList<String>();
 		int startCol=(reactionsTable.getSelectedColumns())[0];	
 		for (int r = start; r < end; r++) {
 			int row = reactionsTable.convertRowIndexToModel(r);
 			rowList.add(row);
 			int reacId = Integer.valueOf((String) reactionsTable.getModel().getValueAt(row, 0));
 			reacIdList.add(reacId);
+			String oldReaction = (String) reactionsTable.getModel().getValueAt(row, GraphicalInterfaceConstants.REACTION_STRING_COLUMN);
+			System.out.println("rxn fill " + oldReaction);
+			oldReactionsList.add(oldReaction);
 		}
 		for (int m = 0; m < rowList.size(); m++) {			
 			int viewRow = GraphicalInterface.reactionsTable.convertRowIndexToView(rowList.get(m));
@@ -3882,7 +3908,7 @@ public class GraphicalInterface extends JFrame {
 				reactionsTable.setValueAt(rowstring[c], viewRow, startCol + c);
 			}
 		}
-		updater.updateReactionRows(rowList, reacIdList, LocalConfig.getInstance().getLoadedDatabase());			
+		updater.updateReactionRows(rowList, reacIdList, oldReactionsList, LocalConfig.getInstance().getLoadedDatabase());			
 	}
 
 	public void reactionsDeleteRows() {
