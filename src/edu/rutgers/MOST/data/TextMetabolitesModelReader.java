@@ -133,6 +133,7 @@ public class TextMetabolitesModelReader {
 			CSVReader reader;
 			
 			Map<String, Object> metaboliteIdNameMap = new HashMap<String, Object>();
+			ArrayList<Integer> blankMetabIds = new ArrayList<Integer>();
 			
 			try {
 				reader = new CSVReader(new FileReader(file), GraphicalInterface.getSplitCharacter());
@@ -161,7 +162,7 @@ public class TextMetabolitesModelReader {
 						}
 					}
 					if (i >= (row + correction)) {
-						String metaboliteAbbreviation = "";
+						
 						String metaboliteName = "";
 						String chargeString = "";
 						String compartment = "";
@@ -185,14 +186,20 @@ public class TextMetabolitesModelReader {
 						
 						//if strings contain ' (single quote), it will not execute insert statement
 						//this code escapes ' as '' - sqlite syntax for escaping '
+						String metaboliteAbbreviation = dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()];
+						
+						if (metaboliteAbbreviation == null || metaboliteAbbreviation.trim().length() == 0) {
+							blankMetabIds.add(i - correction);		
+						} else {
+							metaboliteIdNameMap.put(metaboliteAbbreviation, new Integer(i - correction));
+						}
+
 						if (dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()].contains("'")) {
 							metaboliteAbbreviation = dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()].replaceAll("'", "''");
 						} else {
 							metaboliteAbbreviation = dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()];
 						}
-						
-						metaboliteIdNameMap.put(metaboliteAbbreviation, new Integer(i - correction));
-						
+							
 						if (dataArray[LocalConfig.getInstance().getMetaboliteNameColumnIndex()].contains("'")) {
 							metaboliteName = dataArray[LocalConfig.getInstance().getMetaboliteNameColumnIndex()].replaceAll("'", "''");
 						} else {
@@ -333,6 +340,8 @@ public class TextMetabolitesModelReader {
 				}
 				LocalConfig.getInstance().setMetaboliteIdNameMap(metaboliteIdNameMap);
 				System.out.println("id name map " + LocalConfig.getInstance().getMetaboliteIdNameMap());
+				LocalConfig.getInstance().setBlankMetabIds(blankMetabIds);
+				System.out.println("blank ids " + blankMetabIds);
 				stat.executeUpdate("COMMIT");
 			} catch (Exception e) {
 				stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION

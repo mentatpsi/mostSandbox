@@ -266,6 +266,7 @@ public class SBMLModelReader {
 						+ " (" + "'" + metaboliteAbbreviation + "', '" + metaboliteName + "', '" + chargeString + "', '" + compartment + "', '" + boundary + "', '" + metabMeta1 + "', '" + metabMeta2 + "', '" + metabMeta3 + "', '" + metabMeta4 + "', '" + metabMeta5 + "', '" + metabMeta6 + "', '" + metabMeta7 + "', '" + metabMeta8 + "', '" + metabMeta9 + "', '" + metabMeta10 + "', '" + metabMeta11 + "', '" + metabMeta12 + "', '" + metabMeta13 + "', '" + metabMeta14 + "', '" + metabMeta15 + "', '" + used + "');";
 					stat.executeUpdate(metabInsert);	
 				}
+				LocalConfig.getInstance().setMaxMetaboliteId(metabolites.size());
 				LocalConfig.getInstance().setMetaboliteIdNameMap(metaboliteIdNameMap);
 				System.out.println("id name map " + LocalConfig.getInstance().getMetaboliteIdNameMap());
 								

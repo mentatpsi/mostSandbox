@@ -24,6 +24,7 @@ public class MetaboliteFactory {
 		return new SBMLMetabolite(); //Default behavior.
 	}
 
+	/*
 	public int metaboliteCount(String metabolite, String databaseName) {
 		int count = 0;
 		String queryString = "jdbc:sqlite:" + databaseName + ".db"; 
@@ -48,7 +49,9 @@ public class MetaboliteFactory {
 		}
 		return count;
 	}
+	*/
 
+	/*
 	public void addMetabolite(String metabolite, String databaseName) {
 		String queryString = "jdbc:sqlite:" + databaseName + ".db"; 
 		try {
@@ -75,7 +78,9 @@ public class MetaboliteFactory {
 			e.printStackTrace();			
 		}		
 	}
+	*/
 
+	
 	public boolean isUnused(int id, String databaseName) {
 		String used = "";
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
@@ -106,7 +111,9 @@ public class MetaboliteFactory {
 		}
 		return false;		
 	}
+	
 
+	/*
 	public void setMetaboliteUsedValue(Integer metaboliteId, String databaseName, String booleanValue) {
 		String queryString = "jdbc:sqlite:" + databaseName + ".db"; 
 		try {
@@ -132,7 +139,9 @@ public class MetaboliteFactory {
 			e.printStackTrace();			
 		}
 	}
+	*/
 
+	/*
 	public int maximumId(String databaseName) {
 		int max = 0;
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
@@ -156,6 +165,7 @@ public class MetaboliteFactory {
 		}
 		return max;
 	}
+	*/
 
 	public void deleteAllUnusedMetabolites(String databaseName) {
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";

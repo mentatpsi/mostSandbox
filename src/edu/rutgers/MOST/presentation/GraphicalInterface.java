@@ -75,6 +75,8 @@ import gurobi.GRBVar;
 
 import org.apache.log4j.Logger;
 
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.List;
+
 import layout.TableLayout;
 
 public class GraphicalInterface extends JFrame {
@@ -393,6 +395,8 @@ public class GraphicalInterface extends JFrame {
 		LocalConfig.getInstance().setMetaboliteIdNameMap(metaboliteIdNameMap);
 		Map<String, Object> metaboliteUsedMap = new HashMap<String, Object>();
 		LocalConfig.getInstance().setMetaboliteUsedMap(metaboliteUsedMap);
+		ArrayList<Integer> blankMetabIds = new ArrayList<Integer>();
+		LocalConfig.getInstance().setBlankMetabIds(blankMetabIds);
 		
 		LocalConfig.getInstance().setMaxMetaboliteId(0);
 		
@@ -782,8 +786,24 @@ public class GraphicalInterface extends JFrame {
 
 		deleteUnusedItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ae) {
-				MetaboliteFactory mFactory = new MetaboliteFactory();
-				mFactory.deleteAllUnusedMetabolites(LocalConfig.getInstance().getLoadedDatabase());
+				//TODO: make a list from this, then use as argument for delete method
+				//delete where abbreviation like item in list
+				Map<String, Object> usedMap = LocalConfig.getInstance().getMetaboliteUsedMap();
+				Map<String, Object> idMap = LocalConfig.getInstance().getMetaboliteIdNameMap();
+				ArrayList<String> usedList = new ArrayList<String>(usedMap.keySet());
+				for (int i = 0; i < usedList.size(); i++) {
+					if (idMap.containsKey(usedList.get(i))) {
+						idMap.remove(usedList.get(i));
+					}
+				}
+				//System.out.println(idMap);
+				ArrayList<Object> unusedList = new ArrayList<Object>(idMap.values());
+				//System.out.println(unusedList);
+				MetabolitesUpdater updater = new MetabolitesUpdater();
+				
+				updater.deleteUnused(unusedList, LocalConfig.getInstance().getLoadedDatabase());
+				//MetaboliteFactory mFactory = new MetaboliteFactory();
+				//mFactory.deleteAllUnusedMetabolites(LocalConfig.getInstance().getLoadedDatabase());
 				try {
 					String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
 					Class.forName("org.sqlite.JDBC");
@@ -2088,13 +2108,6 @@ public class GraphicalInterface extends JFrame {
 			if (highlightUnusedMetabolites == true && !(LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.METABOLITE_ABBREVIATION_COLUMN).toString()))) {					
 				return true;
 			}
-
-			/*
-			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(adapter.row);
-			if (highlightUnusedMetabolites == true && metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.USED_COLUMN).toString().equals("false")) {					
-				return true;
-			}
-			*/
 			return false;
 		}
 	};
@@ -3819,6 +3832,20 @@ public class GraphicalInterface extends JFrame {
 						}
 					}
 					updater.updateReactionRows(rowList, reacIdList, oldReactionsList, LocalConfig.getInstance().getLoadedDatabase());
+					
+					String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
+					try {
+						Class.forName("org.sqlite.JDBC");
+						Connection con = DriverManager.getConnection(fileString);
+						setUpMetabolitesTable(con);
+						setUpReactionsTable(con);
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
 				}
 				//if selected area is smaller than copied area, fills in copied area
 				//from first selected cell as upper left
@@ -3832,7 +3859,21 @@ public class GraphicalInterface extends JFrame {
 					System.out.println("rxn paste " + oldReaction);
 				}
 				pasteReactionRows(rowList, reacIdList, s1, startCol);
-				updater.updateReactionRows(rowList, reacIdList, oldReactionsList, LocalConfig.getInstance().getLoadedDatabase());			
+				updater.updateReactionRows(rowList, reacIdList, oldReactionsList, LocalConfig.getInstance().getLoadedDatabase());
+				
+				String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
+				try {
+					Class.forName("org.sqlite.JDBC");
+					Connection con = DriverManager.getConnection(fileString);
+					setUpMetabolitesTable(con);
+					setUpReactionsTable(con);
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 			}
 		}		
 	}

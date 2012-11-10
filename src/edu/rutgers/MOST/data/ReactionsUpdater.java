@@ -140,10 +140,15 @@ public class ReactionsUpdater {
 						}
 						System.out.println("pasted " + LocalConfig.getInstance().getMetaboliteUsedMap());
 					} else {
-						reactionEquation = " ";
-						
+						reactionEquation = " ";						
 					}
-					String reversible = (String) GraphicalInterface.reactionsTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.REVERSIBLE_COLUMN);
+					
+					String reversible = "false";
+					if (reactionEquation.contains("<") || (reactionEquation.contains("=") && !reactionEquation.contains(">"))) {
+						reversible = "true";
+					} else if (reactionEquation.contains("-->") || reactionEquation.contains("->") || reactionEquation.contains("=>")) {
+						reversible = "false";		    		
+					}
 					
 					Double lowerBound = GraphicalInterfaceConstants.LOWER_BOUND_DEFAULT;
 					if (GraphicalInterface.reactionsTable.getModel().getValueAt(rowList.get(i), GraphicalInterfaceConstants.LOWER_BOUND_COLUMN) != null) {
@@ -361,7 +366,7 @@ public class ReactionsUpdater {
 				e.printStackTrace();
 				stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION
 			}
-
+			
 			//update for new reaction
 			int maxMetabId = LocalConfig.getInstance().getMaxMetaboliteId();
 			try {

@@ -230,4 +230,40 @@ public class MetabolitesUpdater {
 		
 	}
 	
+	//unusedList is list of objects, need to cast to integer, hence need for different method
+	public void deleteUnused(ArrayList<Object> unusedList, String databaseName) {
+		//TODO: need to check if unused
+		String queryString = "jdbc:sqlite:" + databaseName + ".db";
+		
+		try{
+			Connection conn =
+				DriverManager.getConnection(queryString);
+			Statement stat = conn.createStatement();
+
+			try {
+				stat.executeUpdate("BEGIN TRANSACTION");
+
+				for (int i = 0; i < unusedList.size(); i++) {
+					String delete = "delete from metabolites where id = " + new Integer((Integer) unusedList.get(i)) + ";";
+					stat.executeUpdate(delete);
+				}
+				for (int j = 0; j < LocalConfig.getInstance().getBlankMetabIds().size(); j++) {
+					String delete = "delete from metabolites where id = " + LocalConfig.getInstance().getBlankMetabIds().get(j) + ";";
+					stat.executeUpdate(delete);
+				}
+				
+				stat.executeUpdate("COMMIT");
+			} catch (Exception e) {
+				e.printStackTrace();
+				stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION
+			}
+
+		}catch(SQLException e){
+
+			e.printStackTrace();
+
+		}
+		
+	}
+	
 }

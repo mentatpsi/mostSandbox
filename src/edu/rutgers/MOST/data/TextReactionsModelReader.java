@@ -244,9 +244,20 @@ public class TextReactionsModelReader {
 								reversible = "false";
 							} else if (dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("true") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("TRUE") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("1") == 0 || dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].compareTo("1.0") == 0) {
 								reversible = "true";
-								//TODO: use reaction equation arrow to get reversible status
 							} else {
-								reversible = dataArray[LocalConfig.getInstance().getReversibleColumnIndex()];
+								//if reversible field contains a value it is used, otherwise determined by arrow in reaction 
+								if (dataArray[LocalConfig.getInstance().getReversibleColumnIndex()].length() > 0) {
+									reversible = dataArray[LocalConfig.getInstance().getReversibleColumnIndex()];
+								} else {
+									if (reactionString != null) {
+										if (reactionString.contains("<") || (reactionString.contains("=") && !reactionString.contains(">"))) {
+											reversible = "true";
+										} else if (reactionString.contains("-->") || reactionString.contains("->") || reactionString.contains("=>")) {
+											reversible = "false";		    		
+										}				
+									} 
+								}
+								
 							}
 						}
 						

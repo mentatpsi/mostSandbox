@@ -306,6 +306,16 @@ public class LocalConfig {
 		this.metaboliteIdNameMap = metaboliteIdNameMap;
 	}
 	
+    private static ArrayList<Integer> blankMetabIds = new ArrayList<Integer>();
+	
+	public ArrayList<Integer> getBlankMetabIds() {
+		return blankMetabIds;
+	}
+	
+	public void setBlankMetabIds(ArrayList<Integer> blankMetabIds) {
+		this.blankMetabIds = blankMetabIds;
+	}
+	
 	//used for determining id when adding a metabolite when a reaction is
 	//read and metabolite is not present
 	private static Integer maxMetaboliteId;
