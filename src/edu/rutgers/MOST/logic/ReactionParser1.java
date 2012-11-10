@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//NOTE: There are two reaction parser classes because all methods have not been rewritten
-//in this new parser from the old parser. This will be remedied shortly.
 public class ReactionParser1 {
 	
 	static boolean parse = true;

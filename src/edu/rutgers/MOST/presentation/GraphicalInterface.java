@@ -33,8 +33,8 @@ import edu.rutgers.MOST.data.TextMetabolitesModelReader;
 import edu.rutgers.MOST.data.TextMetabolitesWriter;
 import edu.rutgers.MOST.data.TextReactionsModelReader;
 import edu.rutgers.MOST.data.TextReactionsWriter;
-import edu.rutgers.MOST.logic.ReactionParser;
-import edu.rutgers.MOST.logic.ReactionParser1;
+//import edu.rutgers.MOST.logic.ReactionParser;
+//import edu.rutgers.MOST.logic.ReactionParser1;
 import edu.rutgers.MOST.optimization.FBA.Optimize;
 import edu.rutgers.MOST.optimization.solvers.GurobiSolver;
 
@@ -3940,45 +3940,6 @@ public class GraphicalInterface extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		/*
-		for (int d = 0; d < deleteIds.size(); d++) {			
-			ReactionFactory aFactory = new ReactionFactory();
-
-			SBMLReaction aReaction = (SBMLReaction)aFactory.getReactionById(deleteIds.get(d), "SBML", LocalConfig.getInstance().getLoadedDatabase()); 
-
-			if (aReaction.getReactionString() != null) {
-				MetaboliteFactory mFactory = new MetaboliteFactory();
-				ReactionParser parser = new ReactionParser();
-				ArrayList<Integer> oldIdList = parser.speciesIdList(aReaction.getReactionString(), LocalConfig.getInstance().getLoadedDatabase());
-
-				for (int i = 0; i < oldIdList.size(); i++) {
-					//check if metabolite id is not used by other reactions before setting to false
-					if ((aFactory.reactantUsedCount(oldIdList.get(i), LocalConfig.getInstance().getLoadedDatabase()) + aFactory.productUsedCount(oldIdList.get(i), LocalConfig.getInstance().getLoadedDatabase())) == 1) {
-						mFactory.setMetaboliteUsedValue(oldIdList.get(i), LocalConfig.getInstance().getLoadedDatabase(), "false"); 
-					}     				    	    			    
-				}  
-			}
-
-			DatabaseCreator creator = new DatabaseCreator();
-			creator.deleteReactionRow(LocalConfig.getInstance().getLoadedDatabase(), deleteIds.get(d));
-
-			String fileString = "jdbc:sqlite:" + LocalConfig.getInstance().getLoadedDatabase() + ".db";
-			try {
-				Class.forName("org.sqlite.JDBC");
-				Connection con = DriverManager.getConnection(fileString);
-				setUpReactionsTable(con);
-				setUpMetabolitesTable(con);
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		reactionsTable.setColumnSelectionAllowed(true);
-		reactionsTable.setRowSelectionAllowed(true);
-		*/
 	}
 	
 	/**************************************************************************/

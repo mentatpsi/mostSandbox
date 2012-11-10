@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import edu.rutgers.MOST.config.LocalConfig;
 import edu.rutgers.MOST.data.ReactionFactory;
-import edu.rutgers.MOST.logic.ReactionParser;
 import edu.rutgers.MOST.logic.ReactionParser1;
 
 public class ReactionInterface extends JFrame {
