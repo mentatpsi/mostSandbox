@@ -38,7 +38,7 @@ public class DatabaseCreator {
 
 			stat.executeUpdate("drop table if exists metabolites;");
 			stat.executeUpdate("create table metabolites (id INTEGER PRIMARY KEY, " 
-					+ " metabolite_abbreviation varchar(40), metabolite_name varchar(200), "
+					+ " metabolite_abbreviation varchar(200), metabolite_name varchar(200), "
 					+ " charge varchar(5), compartment varchar(40), boundary varchar(5) " 
 					+ metaString + ", used varchar(5));");				
 

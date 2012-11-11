@@ -3015,21 +3015,21 @@ public class GraphicalInterface extends JFrame {
 
 		if (GraphicalInterface.metabolitesTable.getSelectedRow() > -1) {
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(GraphicalInterface.metabolitesTable.getSelectedRow());
-			final int id = (Integer.valueOf((String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN)));		
-			final MetaboliteFactory mFactory = new MetaboliteFactory();
-			if (mFactory.isUnused(id, LocalConfig.getInstance().getLoadedDatabase())) {
+			//final int id = (Integer.valueOf((String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN)));		
+			String metabAbbrev = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, 1);
+			//final MetaboliteFactory mFactory = new MetaboliteFactory();
+			if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(metabAbbrev)) {
+				deleteRowMenu.setEnabled(false);
+			} else {
 				deleteRowMenu.setEnabled(true);
 				deleteRowMenu.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
 						metaboliteDeleteRows();				
 					}
 				});
-			} else {
-				deleteRowMenu.setEnabled(false);
 			}
-		} else {
-			deleteRowMenu.setEnabled(false);
-		} 
+		}
+		
 		contextMenu.add(deleteRowMenu);
 
 		return contextMenu;
@@ -3180,21 +3180,21 @@ public class GraphicalInterface extends JFrame {
 
 		if (GraphicalInterface.metabolitesTable.getSelectedRow() > -1) {
 			int viewRow = GraphicalInterface.metabolitesTable.convertRowIndexToModel(GraphicalInterface.metabolitesTable.getSelectedRow());
-			final int id = (Integer.valueOf((String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN)));		
-			final MetaboliteFactory mFactory = new MetaboliteFactory();
-			if (mFactory.isUnused(id, LocalConfig.getInstance().getLoadedDatabase())) {
+			//final int id = (Integer.valueOf((String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, GraphicalInterfaceConstants.DB_METABOLITE_ID_COLUMN)));		
+			String metabAbbrev = (String) GraphicalInterface.metabolitesTable.getModel().getValueAt(viewRow, 1);
+			//final MetaboliteFactory mFactory = new MetaboliteFactory();
+			if (LocalConfig.getInstance().getMetaboliteUsedMap().containsKey(metabAbbrev)) {
+				deleteRowMenu.setEnabled(false);
+			} else {
 				deleteRowMenu.setEnabled(true);
 				deleteRowMenu.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent ae) {
 						metaboliteDeleteRows();				
 					}
 				});
-			} else {
-				deleteRowMenu.setEnabled(false);
 			}
-		} else {
-			deleteRowMenu.setEnabled(false);
-		} 		
+		}
+		
 		contextMenu.add(deleteRowMenu);
 		
 		JMenuItem deleteColumnMenu = new JMenuItem("Delete Column(s)");

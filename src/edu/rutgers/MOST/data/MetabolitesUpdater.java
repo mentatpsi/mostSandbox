@@ -251,6 +251,10 @@ public class MetabolitesUpdater {
 					String delete = "delete from metabolites where id = " + LocalConfig.getInstance().getBlankMetabIds().get(j) + ";";
 					stat.executeUpdate(delete);
 				}
+				for (int k = 0; k < LocalConfig.getInstance().getDuplicateIds().size(); k++) {
+					String delete = "delete from metabolites where id = " + LocalConfig.getInstance().getDuplicateIds().get(k) + ";";
+					stat.executeUpdate(delete);
+				}
 				
 				stat.executeUpdate("COMMIT");
 			} catch (Exception e) {

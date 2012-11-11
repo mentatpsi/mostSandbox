@@ -80,7 +80,7 @@ public class MetaboliteFactory {
 	}
 	*/
 
-	
+	/*
 	public boolean isUnused(int id, String databaseName) {
 		String used = "";
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
@@ -111,7 +111,7 @@ public class MetaboliteFactory {
 		}
 		return false;		
 	}
-	
+	*/
 
 	/*
 	public void setMetaboliteUsedValue(Integer metaboliteId, String databaseName, String booleanValue) {
@@ -167,6 +167,7 @@ public class MetaboliteFactory {
 	}
 	*/
 
+	/*
 	public void deleteAllUnusedMetabolites(String databaseName) {
 		String queryString = "jdbc:sqlite:" + databaseName + ".db";
 		try {
@@ -189,6 +190,7 @@ public class MetaboliteFactory {
 			e.printStackTrace();			
 		}		
 	}
+	*/
 
 	public Integer metaboliteId(String databaseName, String metaboliteAbbreviation) {
 		Integer metaboliteId = 0;
@@ -221,9 +223,7 @@ public class MetaboliteFactory {
 	}
 
 	public static void main(String[] args) {
-		String databaseName = "Model_Reconstruction_corrected";
-		MetaboliteFactory mFactory = new MetaboliteFactory();
-		mFactory.deleteAllUnusedMetabolites(databaseName);
+		
 	}
 
 }

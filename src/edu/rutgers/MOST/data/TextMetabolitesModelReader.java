@@ -134,6 +134,7 @@ public class TextMetabolitesModelReader {
 			
 			Map<String, Object> metaboliteIdNameMap = new HashMap<String, Object>();
 			ArrayList<Integer> blankMetabIds = new ArrayList<Integer>();
+			ArrayList<Integer> duplicateIds = new ArrayList<Integer>();
 			
 			try {
 				reader = new CSVReader(new FileReader(file), GraphicalInterface.getSplitCharacter());
@@ -191,14 +192,17 @@ public class TextMetabolitesModelReader {
 						if (metaboliteAbbreviation == null || metaboliteAbbreviation.trim().length() == 0) {
 							blankMetabIds.add(i - correction);		
 						} else {
-							metaboliteIdNameMap.put(metaboliteAbbreviation, new Integer(i - correction));
+							if (metaboliteIdNameMap.containsKey(metaboliteAbbreviation)) {
+								duplicateIds.add(i - correction);
+							} else {
+								metaboliteIdNameMap.put(metaboliteAbbreviation, new Integer(i - correction));
+							}							
 						}
-
-						if (dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()].contains("'")) {
-							metaboliteAbbreviation = dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()].replaceAll("'", "''");
-						} else {
-							metaboliteAbbreviation = dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()];
-						}
+						
+						String sqlMetaboliteAbbreviation = dataArray[LocalConfig.getInstance().getMetaboliteAbbreviationColumnIndex()];
+						if (sqlMetaboliteAbbreviation.contains("'")) {
+							sqlMetaboliteAbbreviation = sqlMetaboliteAbbreviation.replaceAll("'", "''");
+						} 
 							
 						if (dataArray[LocalConfig.getInstance().getMetaboliteNameColumnIndex()].contains("'")) {
 							metaboliteName = dataArray[LocalConfig.getInstance().getMetaboliteNameColumnIndex()].replaceAll("'", "''");
@@ -334,14 +338,16 @@ public class TextMetabolitesModelReader {
 						String insert = "INSERT INTO metabolites(metabolite_abbreviation, metabolite_name, charge, compartment, boundary, meta_1, meta_2, "
 							+ " meta_3, meta_4, meta_5, meta_6, meta_7, meta_8, meta_9, meta_10, "
 							+ " meta_11, meta_12, meta_13, meta_14, meta_15, used) values" 
-							+ " (" + "'" + metaboliteAbbreviation + "', '" + metaboliteName + "', '" + chargeString + "', '" + compartment + "', '" + boundary + "', '" + meta1 + "', '" + meta2 + "', '" + meta3 + "', '" + meta4 + "', '" + meta5 + "', '" + meta6 + "', '" + meta7 + "', '" + meta8 + "', '" + meta9 + "', '" + meta10 + "', '" + meta11 + "', '" + meta12 + "', '" + meta13 + "', '" + meta14 + "', '" + meta15 + "', '" + used + "');";
+							+ " (" + "'" + sqlMetaboliteAbbreviation + "', '" + metaboliteName + "', '" + chargeString + "', '" + compartment + "', '" + boundary + "', '" + meta1 + "', '" + meta2 + "', '" + meta3 + "', '" + meta4 + "', '" + meta5 + "', '" + meta6 + "', '" + meta7 + "', '" + meta8 + "', '" + meta9 + "', '" + meta10 + "', '" + meta11 + "', '" + meta12 + "', '" + meta13 + "', '" + meta14 + "', '" + meta15 + "', '" + used + "');";
 						stat.executeUpdate(insert);	
 					}					
 				}
 				LocalConfig.getInstance().setMetaboliteIdNameMap(metaboliteIdNameMap);
 				System.out.println("id name map " + LocalConfig.getInstance().getMetaboliteIdNameMap());
 				LocalConfig.getInstance().setBlankMetabIds(blankMetabIds);
-				System.out.println("blank ids " + blankMetabIds);
+				System.out.println("blank ids " + blankMetabIds);				
+				LocalConfig.getInstance().setDuplicateIds(duplicateIds);
+				System.out.println(duplicateIds);
 				stat.executeUpdate("COMMIT");
 			} catch (Exception e) {
 				stat.executeUpdate("ROLLBACK"); // throw away all updates since BEGIN TRANSACTION
